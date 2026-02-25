@@ -1,10 +1,50 @@
-import React, { useState } from 'react';
-import { Github, Mail, Lock, LogIn, Code2, Eye, EyeOff, UserPlus, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {Mail, Lock, LogIn, Code2, Eye, EyeOff, UserPlus, User } from 'lucide-react';
 import './LoginStyles.css';
 
 const LoginForm = () => {
   const [isLogin, setIsLogin] = useState(true); 
   const [showPassword, setShowPassword] = useState(false);
+
+   //Xử lý khi Google trả về ID Token
+  function handleCredentialResponse(response) {
+    console.log("ID TOKEN:", response.credential);
+
+    fetch("https://localhost:7272/api/Auth/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idToken: response.credential,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Backend:", data);
+        //lưu token, chuyển trang, v.v.
+      })
+      .catch(err => console.error(err));
+  }
+
+  // Khởi tạo Google khi component mount
+  useEffect(() => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: "319275534367-9rj78f047dfp9c5ig55fk25gbpmtvpah.apps.googleusercontent.com",
+        callback: handleCredentialResponse,
+      });
+
+      window.google.accounts.id.renderButton(
+  document.getElementById("googleBtn"),
+  { 
+    theme: "outline",
+    size: "large",
+    width: 340  
+  }
+);
+    }
+  }, []);
 
   return (
     <div className="login-container">
@@ -25,8 +65,10 @@ const LoginForm = () => {
 
         {/* Social Login */}
         <div className="social-group">
-          <button className="btn-social"><Github size={18} /> GitHub</button>
-          <button className="btn-social"><Mail size={18} /> Google</button>
+        
+       <div className="google-wrapper">
+  <div id="googleBtn"></div>
+</div>
         </div>
 
         <div className="divider">
