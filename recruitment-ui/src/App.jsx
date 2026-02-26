@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation 
 import HomePage from './Home/HomePage'; 
 import LoginPage from './Auth/LoginForm'; 
 import './App.css'; 
-import InterviewPage from './Interviews/InterviewPage'
+import JobList from './JobPost/JobList';
+
 // Tách Navbar thành component riêng để sử dụng hook useLocation
 const Navbar = () => {
   const navigate = useNavigate();
@@ -53,8 +54,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
-
-            <Route path="/interview/:companyId" element={<InterviewPage />} />
+            <Route path="/joblist" element={<JobList/>} />
           </Routes>
         </main>
       </div>
