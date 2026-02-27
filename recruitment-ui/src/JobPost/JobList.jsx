@@ -4,7 +4,13 @@ import './JobList.css';
 const JobList = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [locations, setLocations] = useState([]);
+    
+    // State lưu trữ dữ liệu động cho bộ lọc lấy từ API
+    const [dynamicFilters, setDynamicFilters] = useState({
+        locations: [],
+        experiences: [],
+        jobTypes: []
+    });
 
     const [filters, setFilters] = useState({
         Search: '',
@@ -15,27 +21,47 @@ const JobList = () => {
         PageSize: 6
     });
 
+    // Gọi API để lấy dữ liệu động cho các bộ lọc (Location, Experience, JobType)
     useEffect(() => {
-        const fetchLocations = async () => {
+        const initData = async () => {
             try {
-                const res = await fetch("https://localhost:7272/api/jobs/locations");
+                const res = await fetch("https://localhost:7272/api/jobs");
                 const data = await res.json();
-                setLocations(data);
+                
+                // Trích xuất các địa điểm duy nhất
+                const locations = [...new Set(data.map(j => j.location))].filter(Boolean).sort();
+                
+                // Trích xuất các mức kinh nghiệm duy nhất
+                const experiences = [...new Set(data.map(j => j.experience))]
+                    .filter(exp => exp !== null && exp !== undefined)
+                    .sort((a, b) => a - b);
+                
+                // Trích xuất các loại công việc (JobType) duy nhất
+                const jobTypesMap = new Map();
+                data.forEach(j => {
+                    if (j.jobType !== null && j.jobTypeName !== null) {
+                        jobTypesMap.set(j.jobType, j.jobTypeName);
+                    }
+                });
+                const jobTypes = Array.from(jobTypesMap, ([id, name]) => ({ id, name }));
+
+                setDynamicFilters({ locations, experiences, jobTypes });
             } catch (err) {
-                console.error("Lỗi load locations:", err);
+                console.error("Lỗi khởi tạo dữ liệu bộ lọc:", err);
             }
         };
-        fetchLocations();
+        initData();
     }, []);
 
+    // Lọc danh sách công việc theo tham số
     const fetchJobs = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
             if (filters.Search) params.append('Search', filters.Search);
             if (filters.Location) params.append('Location', filters.Location);
-            if (filters.experience) params.append('Experience', filters.experience);
-            if (filters.rank) params.append('JobType', filters.rank);
+            if (filters.experience !== '') params.append('Experience', filters.experience);
+            if (filters.rank !== '') params.append('JobType', filters.rank);
             
             params.append('PageNumber', filters.PageNumber);
             params.append('PageSize', filters.PageSize);
@@ -44,7 +70,7 @@ const JobList = () => {
             const data = await response.json();
             setJobs(data);
         } catch (err) {
-            console.error("Lỗi kết nối API:", err);
+            console.error("Lỗi kết nối API lọc công việc:", err);
         } finally {
             setLoading(false);
         }
@@ -97,7 +123,7 @@ const JobList = () => {
                         <span className="icon">📍</span>
                         <select name="Location" value={filters.Location} onChange={handleInputChange}>
                             <option value="">Tất cả địa điểm</option>
-                            {locations.map((loc) => (
+                            {dynamicFilters.locations.map((loc) => (
                                 <option key={loc} value={loc}>{loc}</option>
                             ))}
                         </select>
@@ -117,24 +143,27 @@ const JobList = () => {
                     <div className="filter-group">
                         <span className="filter-group-label">Kinh nghiệm</span>
                         <div className="options-list">
-                            {[
-                                {label: 'Tất cả kinh nghiệm', val: ''},
-                                {label: 'Chưa có kinh nghiệm', val: '0'},
-                                {label: '1 năm', val: '1'},
-                                {label: '2 năm', val: '2'},
-                                {label: '3+ năm', val: '3'},
-                                {label: '5+ năm', val: '5'}
-                            ].map(item => (
-                                <label key={item.label} className={`option-item ${filters.experience === item.val ? 'active' : ''}`}>
+                            <label className={`option-item ${filters.experience === '' ? 'active' : ''}`}>
+                                <input 
+                                    type="radio" 
+                                    name="experience" 
+                                    value="" 
+                                    checked={filters.experience === ''} 
+                                    onChange={handleInputChange} 
+                                />
+                                <span className="custom-radio"></span> Tất cả kinh nghiệm
+                            </label>
+                            {dynamicFilters.experiences.map(exp => (
+                                <label key={`exp-${exp}`} className={`option-item ${filters.experience === exp.toString() ? 'active' : ''}`}>
                                     <input 
                                         type="radio" 
-                                        name="experience"
-                                        value={item.val}
-                                        checked={filters.experience === item.val}
-                                        onChange={handleInputChange}
-                                    /> 
+                                        name="experience" 
+                                        value={exp} 
+                                        checked={filters.experience === exp.toString()} 
+                                        onChange={handleInputChange} 
+                                    />
                                     <span className="custom-radio"></span>
-                                    {item.label}
+                                    {exp === 0 ? "Chưa có kinh nghiệm" : `${exp} năm kinh nghiệm`}
                                 </label>
                             ))}
                         </div>
@@ -144,22 +173,27 @@ const JobList = () => {
                     <div className="filter-group">
                         <span className="filter-group-label">Hình thức làm việc</span>
                         <div className="options-list">
-                            {[
-                                { label: 'Tất cả hình thức', val: '' },
-                                { label: 'Toàn thời gian', val: '1' },
-                                { label: 'Bán thời gian', val: '2' },
-                                { label: 'Thực tập', val: '3' }
-                            ].map(type => (
-                                <label key={type.label} className={`option-item ${filters.rank === type.val ? 'active' : ''}`}>
+                            <label className={`option-item ${filters.rank === '' ? 'active' : ''}`}>
+                                <input 
+                                    type="radio" 
+                                    name="rank" 
+                                    value="" 
+                                    checked={filters.rank === ''} 
+                                    onChange={handleInputChange} 
+                                />
+                                <span className="custom-radio"></span> Tất cả hình thức
+                            </label>
+                            {dynamicFilters.jobTypes.map(type => (
+                                <label key={`type-${type.id}`} className={`option-item ${filters.rank === type.id.toString() ? 'active' : ''}`}>
                                     <input 
                                         type="radio" 
-                                        name="rank"
-                                        value={type.val}
-                                        checked={filters.rank === type.val}
-                                        onChange={handleInputChange}
-                                    /> 
+                                        name="rank" 
+                                        value={type.id} 
+                                        checked={filters.rank === type.id.toString()} 
+                                        onChange={handleInputChange} 
+                                    />
                                     <span className="custom-radio"></span>
-                                    {type.label}
+                                    {type.name}
                                 </label>
                             ))}
                         </div>
@@ -174,7 +208,7 @@ const JobList = () => {
                     </div>
 
                     {jobs.map((job) => (
-                        <div className="job-card" key={job.id}>
+                        <div className="job-card" key={job.idJobPost}>
                             <div className="logo-box">
                                 <img src="https://static.topcv.vn/company_logo/default-company-logo.png" alt="logo" />
                             </div>
@@ -188,9 +222,9 @@ const JobList = () => {
                                 <div className="comp-name">HỆ THỐNG QUẢN LÝ TUYỂN DỤNG RIMS</div>
                                 <div className="job-tags">
                                     <span className="job-tag">📍 {job.location}</span>
-                                    <span className="job-tag">💼 {job.jobType === 1 ? 'Full-time' : 'Part-time'}</span>
+                                    <span className="job-tag">💼 {job.jobTypeName || 'N/A'}</span>
                                     <span className="job-tag">⏳ {job.experience > 0 ? `${job.experience} năm KN` : 'Không yêu cầu KN'}</span>
-                                    <span className="job-tag">⏱ {new Date(job.createdAt).toLocaleDateString()}</span>
+                                    <span className="job-tag">⏱ {new Date(job.expireAt).toLocaleDateString()}</span>
                                 </div>
                                 <div className="job-footer">
                                     <span className="job-date">Hạn nộp: {new Date(job.expireAt).toLocaleDateString()}</span>
