@@ -1,0 +1,367 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-green: #00b14f;
+    --dark-green: #004d3d;
+    --bg-light: #f4f7f6;
+    --text-main: #1a202c;
+    --text-sub: #64748b;
+    --border-color: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.wrapper {
+    background-color: var(--bg-light);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+}
+
+/* --- HEADER & SEARCH TRẢI DÀI --- */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--dark-green);
+    padding: 20px 0;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.search-container {
+    max-width: 1400px; /* Độ rộng cực đại để gần lề hơn */
+    width: 95%;        /* Trải dài 95% màn hình */
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-box, .location-box { 
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    height: 48px;
+}
+
+.search-box { flex: 3; }
+.location-box { flex: 1; }
+
+.search-box input {
+    border: none;
+    padding: 12px 5px;
+    width: 100%;
+    outline: none;
+    font-size: 15px;
+    background: transparent;
+    color: #000000; /* Chữ nhập vào màu đen */
+    font-weight: 500;
+}
+
+.location-box select {
+    border: none;
+    padding: 12px 5px;
+    width: 100%;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+    color: #000000;
+}
+
+.btn-find {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0 45px;
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 15px;
+}
+
+.btn-find:hover { background: #009643; transform: translateY(-1px); }
+
+/* --- MAIN CONTENT --- */
+.main-content {
+    max-width: 1400px;
+    width: 95%;
+    margin: 30px auto;
+    display: flex;
+    gap: 30px;
+}
+
+/* --- SIDEBAR (LỌC NÂNG CAO) CHUYÊN NGHIỆP --- */
+.sidebar {
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    position: sticky;
+    top: 110px;
+    height: fit-content;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+
+.filter-header {
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: var(--dark-green);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #f8fafc;
+    padding-bottom: 15px;
+}
+
+.filter-group { 
+    margin-bottom: 25px;
+}
+
+.filter-group-label {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 15px;
+    display: block;
+    color: #2d3748;
+}
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.2s;
+    border-radius: 8px;
+    position: relative;
+}
+
+/* Ẩn input radio gốc */
+.option-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+/* Tạo Radio Custom */
+.custom-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    margin-right: 12px;
+    background: white;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.option-item:hover {
+    background: #f7fafc;
+}
+
+.option-item.active {
+    background: #e6f7ef;
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.option-item.active .custom-radio {
+    border-color: var(--primary-green);
+    background: var(--primary-green);
+}
+
+.option-item.active .custom-radio::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+}
+
+.btn-reset {
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    border: 1px dashed #cbd5e0;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-reset:hover {
+    border-color: #fc8181;
+    color: #e53e3e;
+    background: #fff5f5;
+}
+
+/* --- JOB CARDS & SECTION --- */
+.job-section { flex: 1; }
+.loading-blur { opacity: 0.5; pointer-events: none; }
+
+.job-count-info {
+    text-align: right;
+    margin-bottom: 15px;
+    color: var(--text-sub);
+    font-size: 14px;
+}
+
+.job-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #eef2f3;
+    transition: 0.3s ease;
+}
+
+.job-card:hover {
+    border-color: var(--primary-green);
+    box-shadow: 0 10px 25px rgba(0, 177, 79, 0.08);
+    transform: translateY(-2px);
+}
+
+.logo-box {
+    width: 85px;
+    height: 85px;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+    padding: 10px;
+    flex-shrink: 0;
+}
+
+.logo-box img { width: 100%; height: 100%; object-fit: contain; }
+
+.job-info { flex: 1; }
+.job-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.job-title { font-size: 18px; color: var(--text-main); font-weight: 700; line-height: 1.4; margin-bottom: 5px; }
+
+.job-salary { 
+    color: var(--primary-green); 
+    font-weight: 700; 
+    background: #e6f7ef;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.comp-name { font-size: 14px; color: #64748b; font-weight: 500; margin-bottom: 12px; }
+
+.job-tags { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+
+.job-tag {
+    background: #f1f5f9;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.job-footer {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.job-date { font-size: 13px; color: #94a3b8; }
+
+.job-actions { display: flex; gap: 12px; }
+
+.btn-wishlist {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #cbd5e1;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: 0.3s;
+}
+
+.btn-wishlist:hover { color: #ef4444; border-color: #fecaca; background: #fff1f2; }
+
+.btn-apply {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0 25px;
+    height: 40px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-apply:hover { background: #009643; box-shadow: 0 4px 12px rgba(0, 177, 79, 0.2); }
+
+/* PAGINATION */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+    padding-bottom: 40px;
+}
+
+.btn-page {
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-main);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-page:hover:not(:disabled) {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+}
+
+.btn-page:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info { font-weight: 600; color: var(--dark-green); }
+
+@media (max-width: 1024px) {
+    .main-content { flex-direction: column; }
+    .sidebar { width: 100%; position: static; }
+}

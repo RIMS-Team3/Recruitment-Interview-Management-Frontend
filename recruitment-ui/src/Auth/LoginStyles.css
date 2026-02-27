@@ -29,7 +29,12 @@
   position: relative;
   overflow: hidden;
 }
-
+.google-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 10px 0 20px 0;
+}
 /* --- PHẦN CHỮ CHẠY (MARQUEE) --- */
 .marquee-wrapper {
   position: absolute;
@@ -157,4 +162,15 @@ input:focus { border-color: var(--primary-green); outline: none; box-shadow: 0 0
   line-height: 1.5;
   margin-top: 0.5rem;
   opacity: 0.9; 
+}
+#googleBtn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#googleBtn > div {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
 }

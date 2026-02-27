@@ -1,18 +1,76 @@
-import React, { useState } from 'react';
-import { Github, Mail, Lock, LogIn, Code2, Eye, EyeOff, UserPlus, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Lock, LogIn, Code2, Eye, EyeOff, UserPlus, User } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 import './LoginStyles.css';
+import { useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 const LoginForm = () => {
-  const [isLogin, setIsLogin] = useState(true); 
+  const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+
+  //Xử lý khi Google trả về ID Token
+  function handleCredentialResponse(response) {
+    fetch("https://localhost:7272/api/Auth/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idToken: response.credential,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Backend:", data);
+
+        //LƯU TOKEN
+        localStorage.setItem("token", data.accessToken);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("fullName", data.fullName);
+        setUser({
+          token: data.accessToken,
+          email: data.email,
+          fullName: data.fullName,
+        });
+
+        // CHUYỂN TRANG
+        navigate("/");
+      })
+      .catch(err => {
+        console.error("Login failed:", err);
+        alert("Đăng nhập Google thất bại!");
+      });
+  }
+
+  // Khởi tạo Google khi component mount
+  useEffect(() => {
+    if (!window.google) return;
+
+    window.google.accounts.id.initialize({
+      client_id: "319275534367-9rj78f047dfp9c5ig55fk25gbpmtvpah.apps.googleusercontent.com",
+      callback: handleCredentialResponse,
+    });
+
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleBtn"),
+      {
+        theme: "outline",
+        size: "large",
+        width: 340,
+      }
+    );
+  }, []);
 
   return (
     <div className="login-container">
-        <div className="marquee-wrapper">
-    <div className="marquee-text">
-    <span>Bùi Xuân Huấn</span> - Ra xã hội làm ăn bươn trải, có làm thì mới có ăn. Không làm mà đòi có ăn thì ăn đầu buồi, ăn cứt.
-    </div>
-  </div>
+      <div className="marquee-wrapper">
+        <div className="marquee-text">
+          <span>Bùi Xuân Huấn</span> - Ra xã hội làm ăn bươn trải, có làm thì mới có ăn. Không làm mà đòi có ăn thì ăn đầu buồi, ăn cứt.
+        </div>
+      </div>
       <div className="login-card">
         {/* Header Section */}
         <div className="login-header">
@@ -25,8 +83,10 @@ const LoginForm = () => {
 
         {/* Social Login */}
         <div className="social-group">
-          <button className="btn-social"><Github size={18} /> GitHub</button>
-          <button className="btn-social"><Mail size={18} /> Google</button>
+
+          <div className="google-wrapper">
+            <div id="googleBtn"></div>
+          </div>
         </div>
 
         <div className="divider">
@@ -35,7 +95,7 @@ const LoginForm = () => {
 
         {/* Form Section */}
         <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
-          
+
           {!isLogin && (
             <div className="input-group">
               <label>Họ và tên</label>
@@ -61,13 +121,13 @@ const LoginForm = () => {
             </div>
             <div className="input-wrapper">
               <Lock className="input-icon-left" size={18} />
-              <input 
-                type={showPassword ? "text" : "password"} 
-                placeholder="••••••••" 
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
               />
-              <button 
-                type="button" 
-                className="btn-eye" 
+              <button
+                type="button"
+                className="btn-eye"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
