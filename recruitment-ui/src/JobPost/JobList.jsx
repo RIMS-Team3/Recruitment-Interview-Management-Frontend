@@ -125,14 +125,16 @@ const JobList = () => {
                                 {label: '3+ năm', val: '3'},
                                 {label: '5+ năm', val: '5'}
                             ].map(item => (
-                                <label key={item.label} className="option-item">
+                                <label key={item.label} className={`option-item ${filters.experience === item.val ? 'active' : ''}`}>
                                     <input 
                                         type="radio" 
                                         name="experience"
                                         value={item.val}
                                         checked={filters.experience === item.val}
                                         onChange={handleInputChange}
-                                    /> {item.label}
+                                    /> 
+                                    <span className="custom-radio"></span>
+                                    {item.label}
                                 </label>
                             ))}
                         </div>
@@ -148,14 +150,16 @@ const JobList = () => {
                                 { label: 'Bán thời gian', val: '2' },
                                 { label: 'Thực tập', val: '3' }
                             ].map(type => (
-                                <label key={type.label} className="option-item">
+                                <label key={type.label} className={`option-item ${filters.rank === type.val ? 'active' : ''}`}>
                                     <input 
                                         type="radio" 
                                         name="rank"
                                         value={type.val}
                                         checked={filters.rank === type.val}
                                         onChange={handleInputChange}
-                                    /> {type.label}
+                                    /> 
+                                    <span className="custom-radio"></span>
+                                    {type.label}
                                 </label>
                             ))}
                         </div>
@@ -185,7 +189,6 @@ const JobList = () => {
                                 <div className="job-tags">
                                     <span className="job-tag">📍 {job.location}</span>
                                     <span className="job-tag">💼 {job.jobType === 1 ? 'Full-time' : 'Part-time'}</span>
-                                    {/* Hiển thị kinh nghiệm trên item */}
                                     <span className="job-tag">⏳ {job.experience > 0 ? `${job.experience} năm KN` : 'Không yêu cầu KN'}</span>
                                     <span className="job-tag">⏱ {new Date(job.createdAt).toLocaleDateString()}</span>
                                 </div>
