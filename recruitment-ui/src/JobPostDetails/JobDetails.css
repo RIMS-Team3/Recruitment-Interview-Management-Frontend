@@ -1,0 +1,93 @@
+.job-page-wrapper {
+    max-width: 1140px;
+    margin: 20px auto;
+    padding: 0 15px;
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7f6;
+}
+
+/* Breadcrumb */
+.job-breadcrumb {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+}
+.job-breadcrumb a { color: #00b14f; text-decoration: none; }
+.job-breadcrumb span { margin: 0 8px; color: #ccc; }
+
+.job-container-layout {
+    display: flex;
+    gap: 24px;
+}
+
+.job-main-column { flex: 2; }
+.job-sidebar-column { flex: 1; }
+
+/* Cards */
+.job-header-card, .job-content-card, .company-card-right, .general-info-card-right {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.job-main-title { font-size: 24px; color: #333; margin-bottom: 20px; font-weight: 700; }
+
+/* Stats Row */
+.job-stats-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.stat-box { display: flex; align-items: center; gap: 12px; }
+.stat-icon { font-size: 24px; background: #eafbef; padding: 10px; border-radius: 50%; }
+.stat-label { display: block; font-size: 13px; color: #666; }
+.stat-value { font-weight: 600; font-size: 15px; color: #333; }
+
+.job-deadline { font-size: 14px; color: #666; margin-bottom: 15px; }
+
+/* Buttons */
+.job-actions { display: flex; gap: 12px; }
+.btn-apply-now {
+    flex: 3; background: #00b14f; color: #fff; border: none; 
+    padding: 14px; border-radius: 5px; font-weight: bold; cursor: pointer;
+    transition: 0.3s;
+}
+.btn-apply-now:hover { background: #009643; }
+
+.btn-save-job {
+    flex: 1; border: 1px solid #00b14f; color: #00b14f; 
+    background: #fff; border-radius: 5px; cursor: pointer; font-weight: 600;
+}
+
+/* Content Details */
+.content-heading { border-left: 5px solid #00b14f; padding-left: 12px; font-size: 18px; margin-bottom: 20px; font-weight: 700; }
+.requirement-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.req-label { font-weight: 600; font-size: 14px; }
+.req-tag { background: #f1f3f5; padding: 5px 15px; border-radius: 20px; font-size: 13px; color: #495057; }
+
+.description-section h3 { font-size: 16px; font-weight: 700; margin: 20px 0 10px 0; color: #333; }
+.desc-text { line-height: 1.6; color: #555; font-size: 15px; white-space: pre-line; }
+
+/* Sidebar Company */
+.company-header-flex { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; }
+.company-logo-img { 
+    width: 64px; height: 64px; border: 1px solid #eee; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;
+}
+.company-name-box h4 { margin: 0; font-size: 16px; color: #333; }
+.pro-label { background: #ffede0; color: #f27024; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+
+.company-meta-list p { font-size: 14px; color: #666; margin-bottom: 8px; }
+.view-company-link { 
+    display: block; text-align: center; color: #00b14f; 
+    text-decoration: none; margin-top: 15px; font-size: 14px; font-weight: 600;
+}
+
+/* General Info Sidebar */
+.gen-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+.gen-label { color: #666; }
+.gen-val { font-weight: 600; color: #333; }
+
+.status-msg { text-align: center; padding: 50px; font-size: 18px; color: #666; }
