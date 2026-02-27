@@ -88,6 +88,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/joblist" element={<JobList/>} />
+             <Route path="/interview/:companyId" element={<InterviewPage />} />
             <Route path="/jobpostdetail/:id" element={<JobPostDetails />} />
           </Routes>
         </main>
