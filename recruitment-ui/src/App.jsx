@@ -27,7 +27,7 @@ const Navbar = () => {
     <nav className="main-navbar">
       <div className="nav-content">
         <Link title="Trang chủ" to="/" className="logo-text">
-          <div className="logo-box">T</div>
+          <div className="navbar-logo-box">T</div>
           IT LOCAK
         </Link>
 
@@ -46,7 +46,7 @@ const Navbar = () => {
               </span>
 
               <button
-                className="btn-login"
+                className="navbar-btn-login"
                 onClick={() => {
                   localStorage.clear();
                   setUser(null);
@@ -59,13 +59,13 @@ const Navbar = () => {
           ) : (
             <>
               <button
-                className="btn-login"
+                className="navbar-btn-login"
                 onClick={() => navigate('/login')}
               >
                 Đăng nhập
               </button>
 
-              <button className="btn-post">
+              <button className="navbar-btn-post">
                 Đăng tuyển ngay
               </button>
             </>
@@ -83,13 +83,16 @@ function App() {
         {/* Navbar giờ đây nằm bên trong Router để có thể sử dụng useLocation */}
         <Navbar />
 
-        <main className="main-content">
+        <main className="app-main-content">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/joblist" element={<JobList/>} />
              <Route path="/interview/:companyId" element={<InterviewPage />} />
             <Route path="/jobpostdetail/:id" element={<JobPostDetails />} />
+            <Route path="/interviews" element={<InterviewPage />} />
+            <Route path="/interviews/:companyId" element={<InterviewPage />} />
+            <Route path="/interview/:companyId" element={<InterviewPage />} />
           </Routes>
         </main>
       </div>

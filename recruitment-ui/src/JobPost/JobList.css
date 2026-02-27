@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
     --primary-green: #00b14f;
@@ -22,20 +22,21 @@
     width: 100%;
 }
 
-/* HEADER & SEARCH */
+/* --- HEADER & SEARCH TRẢI DÀI --- */
 .sticky-header {
     position: sticky;
     top: 0;
     z-index: 1000;
     background: var(--dark-green);
-    padding: 15px 0;
+    padding: 20px 0;
     width: 100%;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .search-container {
-    width: 100%;
-    padding: 0 20px;
+    max-width: 1400px; /* Độ rộng cực đại để gần lề hơn */
+    width: 95%;        /* Trải dài 95% màn hình */
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -44,70 +45,84 @@
 
 .search-box, .location-box { 
     background: white;
-    border-radius: 6px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     padding: 0 15px;
+    height: 48px;
 }
 
 .search-box { flex: 3; }
 .location-box { flex: 1; }
 
-.search-box input, .location-box select {
+.search-box input {
+    border: none;
+    padding: 12px 5px;
+    width: 100%;
+    outline: none;
+    font-size: 15px;
+    background: transparent;
+    color: #000000; /* Chữ nhập vào màu đen */
+    font-weight: 500;
+}
+
+.location-box select {
     border: none;
     padding: 12px 5px;
     width: 100%;
     outline: none;
     font-size: 14px;
     background: transparent;
+    color: #000000;
 }
 
 .btn-find {
     background: var(--primary-green);
     color: white;
     border: none;
-    padding: 0 40px;
-    height: 45px;
-    border-radius: 6px;
+    padding: 0 45px;
+    height: 48px;
+    border-radius: 8px;
     font-weight: 700;
     cursor: pointer;
     transition: 0.3s;
+    font-size: 15px;
 }
 
 .btn-find:hover { background: #009643; transform: translateY(-1px); }
 
-/* MAIN CONTENT */
+/* --- MAIN CONTENT --- */
 .main-content {
-    max-width: 1200px;
+    max-width: 1400px;
+    width: 95%;
     margin: 30px auto;
-    padding: 0 20px;
     display: flex;
     gap: 30px;
 }
 
-/* SIDEBAR - MODERN STYLE */
+/* --- SIDEBAR (LỌC NÂNG CAO) CHUYÊN NGHIỆP --- */
 .sidebar {
-    width: 280px;
+    width: 320px;
     background: white;
     border-radius: 12px;
     padding: 24px;
     position: sticky;
-    top: 90px;
+    top: 110px;
     height: fit-content;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     border: 1px solid var(--border-color);
 }
 
 .filter-header {
-    font-weight: 700;
-    font-size: 16px;
-    margin-bottom: 25px;
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 20px;
     color: var(--dark-green);
     display: flex;
     align-items: center;
-    gap: 8px;
-    border-bottom: 2px solid var(--bg-light);
-    padding-bottom: 12px;
+    gap: 10px;
+    border-bottom: 2px solid #f8fafc;
+    padding-bottom: 15px;
 }
 
 .filter-group { 
@@ -119,56 +134,93 @@
     font-size: 14px;
     margin-bottom: 15px;
     display: block;
-    color: var(--text-main);
+    color: #2d3748;
 }
 
 .options-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
 }
 
 .option-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    padding: 10px 12px;
     font-size: 14px;
     cursor: pointer;
-    color: var(--text-sub);
-    transition: 0.2s;
+    color: #4a5568;
+    transition: all 0.2s;
+    border-radius: 8px;
+    position: relative;
 }
 
-.option-item:hover { color: var(--primary-green); }
-
+/* Ẩn input radio gốc */
 .option-item input[type="radio"] {
-    accent-color: var(--primary-green);
+    position: absolute;
+    opacity: 0;
+}
+
+/* Tạo Radio Custom */
+.custom-radio {
     width: 18px;
     height: 18px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    margin-right: 12px;
+    background: white;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.option-item:hover {
+    background: #f7fafc;
+}
+
+.option-item.active {
+    background: #e6f7ef;
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.option-item.active .custom-radio {
+    border-color: var(--primary-green);
+    background: var(--primary-green);
+}
+
+.option-item.active .custom-radio::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
 }
 
 .btn-reset {
     width: 100%;
     padding: 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #fff;
+    border: 1px dashed #cbd5e0;
     border-radius: 8px;
     font-weight: 600;
-    color: #64748b;
+    color: #718096;
     cursor: pointer;
     transition: 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    margin-top: 10px;
 }
 
 .btn-reset:hover {
-    background: #fff;
-    border-color: var(--primary-green);
-    color: var(--primary-green);
+    border-color: #fc8181;
+    color: #e53e3e;
+    background: #fff5f5;
 }
 
-/* JOB CARDS */
+/* --- JOB CARDS & SECTION --- */
 .job-section { flex: 1; }
 .loading-blur { opacity: 0.5; pointer-events: none; }
 
@@ -202,6 +254,7 @@
     border: 1px solid #f1f5f9;
     border-radius: 8px;
     padding: 10px;
+    flex-shrink: 0;
 }
 
 .logo-box img { width: 100%; height: 100%; object-fit: contain; }
@@ -308,7 +361,7 @@
 
 .page-info { font-weight: 600; color: var(--dark-green); }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .main-content { flex-direction: column; }
     .sidebar { width: 100%; position: static; }
 }
