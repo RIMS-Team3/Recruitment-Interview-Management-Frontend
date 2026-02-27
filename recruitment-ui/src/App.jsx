@@ -1,13 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import HomePage from './Home/HomePage'; 
-import LoginPage from './Auth/LoginForm'; 
-import './App.css'; 
-import InterviewPage from './Interviews/InterviewPage'
+import HomePage from './Home/HomePage';
+import LoginPage from './Auth/LoginForm';
+import './App.css';
+import InterviewPage from './Interviews/InterviewPage';
+import { useContext } from "react";
+import { AuthContext } from "./Auth/AuthContext";
 // Tách Navbar thành component riêng để sử dụng hook useLocation
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, setUser } = useContext(AuthContext);
 
   // Danh sách các đường dẫn KHÔNG hiển thị Navbar
   const hideNavbarPaths = ['/login'];
@@ -23,7 +26,7 @@ const Navbar = () => {
           <div className="logo-box">T</div>
           IT LOCAK
         </Link>
-        
+
         <ul className="nav-menu">
           <li>Việc làm</li>
           <li>Hồ sơ & CV</li>
@@ -32,10 +35,37 @@ const Navbar = () => {
         </ul>
 
         <div className="nav-auth">
-          <button className="btn-login" onClick={() => navigate('/login')}>
-            Đăng nhập
-          </button>
-          <button className="btn-post">Đăng tuyển ngay</button>
+          {user ? (
+            <>
+              <span style={{ marginRight: "15px" }}>
+                Xin chào {user.fullName}
+              </span>
+
+              <button
+                className="btn-login"
+                onClick={() => {
+                  localStorage.clear();
+                  setUser(null);
+                  navigate("/");
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn-login"
+                onClick={() => navigate('/login')}
+              >
+                Đăng nhập
+              </button>
+
+              <button className="btn-post">
+                Đăng tuyển ngay
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
@@ -48,7 +78,7 @@ function App() {
       <div className="app-container">
         {/* Navbar giờ đây nằm bên trong Router để có thể sử dụng useLocation */}
         <Navbar />
-        
+
         <main className="main-content">
           <Routes>
             <Route path="/" element={<HomePage />} />
