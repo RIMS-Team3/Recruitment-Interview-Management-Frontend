@@ -7,6 +7,7 @@ import JobList from './JobPost/JobList';
 import InterviewPage from './Interviews/InterviewPage';
 import { useContext } from "react";
 import { AuthContext } from "./Auth/AuthContext";
+import JobPostDetails from './JobPostDetails/JobPostDetails';
 
 
 // Tách Navbar thành component riêng để sử dụng hook useLocation
@@ -87,6 +88,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/joblist" element={<JobList/>} />
+            <Route path="/jobpostdetail/:id" element={<JobPostDetails />} />
           </Routes>
         </main>
       </div>
