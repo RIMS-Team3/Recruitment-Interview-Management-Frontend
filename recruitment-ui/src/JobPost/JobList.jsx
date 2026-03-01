@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSavedJobIds, toggleSavedJob } from '../services/savedJobsApi';
-import { DEV_BYPASS_LOGIN_TO_SAVE, DEV_CANDIDATE_ID, getCandidateIdFromSession } from '../services/candidateSession';
+import { getSavedJobIds, toggleSavedJob } from '../Services/SavedJobsApi';
+import { DEV_BYPASS_LOGIN_TO_SAVE, DEV_CANDIDATE_ID, getCandidateIdFromSession } from '../Services/candidateSession';
 import './JobList.css';
 
 const JobList = () => {
@@ -63,7 +63,7 @@ const JobList = () => {
         if (!candidateId) return;
         try {
             const ids = await getSavedJobIds(candidateId);
-            setSavedJobIds(new Set(ids));
+            setSavedJobIds(new Set(ids.map(String)));
         } catch (err) {
             console.error(err);
         }
@@ -122,7 +122,8 @@ const JobList = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleToggleSavedJob = async (jobId) => {
+    const handleToggleSavedJob = async (rawJobId) => {
+        const jobId = String(rawJobId);
         if (!candidateId) {
             alert('Bạn cần đăng nhập để lưu job.');
             return;
@@ -141,7 +142,7 @@ const JobList = () => {
             });
         } catch (err) {
             console.error(err);
-            alert('Không thể cập nhật trạng thái lưu job.');
+            alert(err?.message || 'Không thể cập nhật trạng thái lưu job.');
         } finally {
             setSavingMap(prev => ({ ...prev, [jobId]: false }));
         }
@@ -225,7 +226,7 @@ const JobList = () => {
                     </div>
 
                     {jobs.map((job) => {
-                        const jobId = job.idJobPost || job.jobId || job.id;
+                        const jobId = String(job.idJobPost || job.jobId || job.id);
                         const isSaved = savedJobIds.has(jobId);
 
                         return (
@@ -276,12 +277,15 @@ const JobList = () => {
                         </button>
                     </div>
                 </main>
+            </div>
 
-                <aside className="saved-panel">
-                    <button className="saved-panel-button" onClick={() => navigate('/saved-jobs')}>
-                        ❤️ Việc làm đã lưu ({savedJobIds.size})
-                    </button>
-                </aside>
+            <div className="saved-jobs-floating" onClick={() => navigate('/saved-jobs')}>
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                {savedJobIds.size > 0 && (
+                    <span className="saved-badge">{savedJobIds.size}</span>
+                )}
             </div>
         </div>
     );
