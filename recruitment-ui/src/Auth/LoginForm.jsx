@@ -14,6 +14,19 @@ const LoginForm = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  //THÊM: Nếu đã login rồi thì không cho vào /login nữa
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const role = Number(localStorage.getItem("role"));
+
+    if (token) {
+      if (role === 0) {
+        navigate("/select-role");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [navigate]);
 
   // ================= GOOGLE LOGIN (GIỮ NGUYÊN) =================
   async function handleCredentialResponse(response) {
@@ -52,7 +65,12 @@ const LoginForm = () => {
         role: data.role,
       });
 
-      navigate("/");
+      // 🔥 THÊM LOGIC ROLE
+      if (data.role === 0) {
+        navigate("/select-role");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       console.error("Google login error:", err);
       alert("Không thể kết nối server");
@@ -111,14 +129,14 @@ const LoginForm = () => {
         return;
       }
 
+      // LOGIN SUCCESS
       if (isLogin) {
-        // LOGIN SUCCESS
-        localStorage.setItem("token", data.accessToken);
+        localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("email", data.email);
         localStorage.setItem("fullName", data.fullName);
         localStorage.setItem("role", data.role);
         localStorage.setItem("userId", data.userId);
-        console.log(data.userId);
+
         setUser({
           id: data.userId,
           token: data.accessToken,
@@ -127,11 +145,13 @@ const LoginForm = () => {
           role: data.role,
         });
 
-        if (!data.role) {
+        if (data.role === 0) {
           navigate("/select-role");
         } else {
           navigate("/");
         }
+
+
       } else {
         // REGISTER SUCCESS
         alert("Đăng ký thành công!");

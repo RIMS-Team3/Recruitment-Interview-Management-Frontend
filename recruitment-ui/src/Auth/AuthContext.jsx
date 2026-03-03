@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     const email = localStorage.getItem("email");
     const fullName = localStorage.getItem("fullName");
     const role = localStorage.getItem("role");
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         token,
         email,
         fullName,
-        role: role ? Number(role) : null,
+        role: role !== null ? parseInt(role) : null,
       });
     }
   }, []);
