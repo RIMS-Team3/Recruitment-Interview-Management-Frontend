@@ -9,12 +9,16 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     const email = localStorage.getItem("email");
     const fullName = localStorage.getItem("fullName");
+    const role = localStorage.getItem("role");
+    const userId = localStorage.getItem("userId");
 
     if (token) {
       setUser({
+        id: userId,
         token,
         email,
         fullName,
+        role: role ? Number(role) : null,
       });
     }
   }, []);

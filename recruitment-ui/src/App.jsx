@@ -10,6 +10,7 @@ import { useContext } from "react";
 import { AuthContext } from "./Auth/AuthContext";
 import JobPostDetails from './JobPostDetails/JobPostDetails';
 import SavedJobs from './SavedJobs/SavedJobs';
+import SelectRole from "./Auth/SelectRole";
 
 // Tách Navbar thành component riêng để sử dụng hook useLocation
 const Navbar = () => {
@@ -93,10 +94,14 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+<<<<<<< Updated upstream
 {/* Đây là nơi chúng ta tích hợp trang UserProfile */}
             <Route path="/profile" element={<UserProfile />} />
+=======
+            <Route path="/select-role" element={<SelectRole />} />
+>>>>>>> Stashed changes
             <Route path="/joblist" element={<JobList/>} />
-             <Route path="/interview/:companyId" element={<InterviewPage />} />
+            <Route path="/interview/:companyId" element={<InterviewPage />} />
             <Route path="/jobpostdetail/:id" element={<JobPostDetails />} />
             <Route path="/interviews" element={<InterviewPage />} />
             <Route path="/interviews/:companyId" element={<InterviewPage />} />
