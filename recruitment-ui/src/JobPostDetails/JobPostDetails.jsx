@@ -6,6 +6,9 @@ const JobPostDetails = () => {
     const { id } = useParams();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
+    
+    // State để quản lý việc hiển thị thông báo ứng tuyển thành công
+    const [showToast, setShowToast] = useState(false);
 
     useEffect(() => {
         // Gọi API lấy chi tiết công việc
@@ -24,13 +27,24 @@ const JobPostDetails = () => {
             });
     }, [id]);
 
+    // Hàm xử lý khi nhấn nút Ứng tuyển
+    const handleApply = () => {
+        // Giả lập logic gửi dữ liệu...
+        // Hiển thị thông báo
+        setShowToast(true);
+
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            setShowToast(false);
+        }, 3000);
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return "Đang cập nhật";
         const date = new Date(dateString);
         return date.toLocaleDateString('vi-VN');
     };
 
-    // Hàm xử lý hiển thị kinh nghiệm động từ data backend
     const renderExperience = (exp) => {
         if (exp === undefined || exp === null) return "Chưa cập nhật";
         if (exp === 0) return "Không yêu cầu kinh nghiệm";
@@ -42,6 +56,17 @@ const JobPostDetails = () => {
 
     return (
         <div className="job-page-wrapper">
+            {/* THÔNG BÁO (TOAST) TỰ CHẾ */}
+            {showToast && (
+                <div className="custom-toast">
+                    <span className="toast-icon">✅</span>
+                    <div className="toast-content">
+                        <strong>Thành công!</strong>
+                        <p>Bạn đã ứng tuyển vị trí {job.title}</p>
+                    </div>
+                </div>
+            )}
+
             {/* Breadcrumb */}
             <nav className="job-breadcrumb">
                 <Link to="/">Việc làm</Link> <span>/</span> 
@@ -76,7 +101,6 @@ const JobPostDetails = () => {
                                 <div className="stat-icon">⏳</div>
                                 <div className="stat-info">
                                     <span className="stat-label">Kinh nghiệm</span>
-                                    {/* HIỂN THỊ KINH NGHIỆM ĐỘNG */}
                                     <span className="stat-value">{renderExperience(job.experience)}</span>
                                 </div>
                             </div>
@@ -85,7 +109,9 @@ const JobPostDetails = () => {
                         <p className="job-deadline">Hạn nộp hồ sơ: {formatDate(job.expireAt)}</p>
 
                         <div className="job-actions">
-                            <button className="btn-apply-now">Ứng tuyển ngay</button>
+                            <button className="btn-apply-now" onClick={handleApply}>
+                                Ứng tuyển ngay
+                            </button>
                             <button className="btn-save-job">♡ Lưu tin</button>
                         </div>
                     </div>
@@ -95,7 +121,6 @@ const JobPostDetails = () => {
                         
                         <div className="requirement-row">
                             <span className="req-label">Yêu cầu:</span>
-                            {/* TAG KINH NGHIỆM ĐỘNG */}
                             <span className="req-tag">{renderExperience(job.experience)}</span>
                             <span className="req-tag">Đại học trở lên</span>
                         </div>

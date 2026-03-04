@@ -1,35 +1,49 @@
-/* --- Tối ưu hóa cho mọi kích cỡ màn hình --- */
 .job-page-wrapper {
-    /* Giữ khung tối đa để không bị quá loãng trên màn hình 4K/màn to */
     max-width: 1140px;
-    /* Căn giữa trang và giữ margin âm để sát Header như bạn muốn */
     margin: -10px auto 20px auto; 
-    padding: 0 15px; /* Padding này giúp nội dung không chạm mép khi mở trên điện thoại/màn nhỏ */
+    padding: 0 15px; 
     font-family: 'Inter', sans-serif;
     background-color: #f4f7f6;
-    width: 100%; /* Đảm bảo wrapper luôn chiếm hết chiều ngang khả dụng */
+    width: 100%; 
     box-sizing: border-box;
+    position: relative;
 }
 
-/* Breadcrumb - Giữ nguyên của bạn */
-.job-breadcrumb {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 15px;
+/* THÔNG BÁO TOAST - HIỆN Ở GÓC TRÊN BÊN PHẢI */
+.custom-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #00b14f;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 177, 79, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 9999;
+    animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.toast-icon { font-size: 24px; }
+.toast-content strong { display: block; font-size: 15px; }
+.toast-content p { margin: 0; font-size: 13px; opacity: 0.9; }
+
+@keyframes slideInRight {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Breadcrumb */
+.job-breadcrumb { font-size: 14px; color: #666; margin-bottom: 15px; }
 .job-breadcrumb a { color: #00b14f; text-decoration: none; }
 .job-breadcrumb span { margin: 0 8px; color: #ccc; }
 
-.job-container-layout {
-    display: flex;
-    gap: 24px;
-    width: 100%;
-}
-
+.job-container-layout { display: flex; gap: 24px; width: 100%; }
 .job-main-column { flex: 2; }
 .job-sidebar-column { flex: 1; }
 
-/* Cards trắng - Giữ nguyên của bạn */
 .job-header-card, .job-content-card, .company-card-right, .general-info-card-right {
     background: #fff;
     border-radius: 8px;
@@ -40,7 +54,6 @@
 
 .job-main-title { font-size: 24px; color: #333; margin-bottom: 20px; font-weight: 700; }
 
-/* --- GIỮ NGUYÊN MỨC LƯƠNG, ĐỊA ĐIỂM TRÊN 1 HÀNG --- */
 .job-stats-container {
     display: flex;
     justify-content: flex-start;
@@ -49,43 +62,26 @@
     flex-wrap: nowrap;
 }
 
-.stat-box { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    white-space: nowrap;
-}
+.stat-box { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
 
-/* --- FIX: CĂN ICON VÀO CHÍNH GIỮA Ô TRÒN MÀU XANH --- */
 .stat-icon { 
     font-size: 24px; 
     background: #eafbef; 
     border-radius: 50%; 
-    
-    /* Thiết lập kích thước cố định để đảm bảo hình tròn chuẩn */
     width: 44px; 
     height: 44px; 
-    
-    /* Ép icon (💵, 📍, ⏳) vào tâm tuyệt đối */
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    padding: 0; /* Xóa padding cũ để tránh làm lệch icon */
-    flex-shrink: 0; /* Không cho vòng tròn bị bóp méo khi màn hình nhỏ */
+    flex-shrink: 0;
 }
 
-.stat-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-.stat-label { display: block; font-size: 13px; color: #666; margin-bottom: 2px; }
+.stat-info { display: flex; flex-direction: column; align-items: flex-start; }
+.stat-label { font-size: 13px; color: #666; margin-bottom: 2px; }
 .stat-value { font-weight: 600; font-size: 15px; color: #333; }
 
 .job-deadline { font-size: 14px; color: #666; margin-bottom: 15px; }
 
-/* Buttons - Giữ nguyên 100% của bạn */
 .job-actions { display: flex; gap: 12px; }
 .btn-apply-now {
     flex: 3; background: #00b14f; color: #fff; border: none; 
@@ -99,7 +95,6 @@
     background: #fff; border-radius: 5px; cursor: pointer; font-weight: 600;
 }
 
-/* Content Details */
 .content-heading { border-left: 5px solid #00b14f; padding-left: 12px; font-size: 18px; margin-bottom: 20px; font-weight: 700; }
 .requirement-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .req-label { font-weight: 600; font-size: 14px; }
@@ -108,7 +103,6 @@
 .description-section h3 { font-size: 16px; font-weight: 700; margin: 20px 0 10px 0; color: #333; }
 .desc-text { line-height: 1.6; color: #555; font-size: 15px; white-space: pre-line; }
 
-/* Sidebar Company */
 .company-header-flex { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; }
 .company-logo-img { 
     width: 64px; height: 64px; border: 1px solid #eee; border-radius: 8px;
@@ -122,21 +116,8 @@
     text-decoration: none; margin-top: 15px; font-size: 14px; font-weight: 600;
 }
 
-/* --- Thông tin chung (Xuống dòng dưới mỗi mục) --- */
-.general-info-card-right .gen-item { 
-    display: block; 
-    margin-bottom: 15px; 
-    font-size: 14px; 
-}
-.general-info-card-right .gen-label { 
-    display: block; 
-    color: #666; 
-    margin-bottom: 4px; 
-}
-.general-info-card-right .gen-val { 
-    display: block; 
-    font-weight: 600; 
-    color: #333; 
-}
+.general-info-card-right .gen-item { display: block; margin-bottom: 15px; font-size: 14px; }
+.general-info-card-right .gen-label { display: block; color: #666; margin-bottom: 4px; }
+.general-info-card-right .gen-val { display: block; font-weight: 600; color: #333; }
 
 .status-msg { text-align: center; padding: 50px; font-size: 18px; color: #666; }
