@@ -12,6 +12,9 @@ import SelectRole from "./Auth/SelectRole";
 import ProtectedRoute from "./Auth/ProtectedRoute";
 import RoleGuard from "./Auth/RoleGuard";
 import CreateCompany from "./Auth/CreateCompany";
+import CVs from "./CVs/CVs";
+import CVTemplates from "./CVs/CVTemplates";
+import CreateCV from "./CVs/CreateCV";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -34,7 +37,11 @@ const Navbar = () => {
 
         <ul className="nav-menu">
           <li>Việc làm</li>
-          <li>Hồ sơ & CV</li>
+          <li>
+            <Link to="/manage-cv" style={{ textDecoration: "none", color: "inherit" }}>
+              Hồ sơ & CV
+            </Link>
+          </li>
           <li>Công cụ</li>
           <li>Cẩm nang</li>
         </ul>
@@ -96,16 +103,37 @@ function App() {
             <Route path="/jobpostdetail/:id" element={<JobPostDetails />} />
             <Route path="/interview/:companyId" element={<InterviewPage />} />
             <Route path="/interviews" element={<InterviewPage />} />
-
-            <Route
-              path="/saved-jobs"
-              element={
+            <Route path="/saved-jobs" element={
                 <ProtectedRoute>
                   <SavedJobs />
                 </ProtectedRoute>
               }
             />
             <Route path="/create-company" element={<CreateCompany />} />
+            <Route 
+                path="/manage-cv" 
+                element={
+                  <ProtectedRoute>
+                    <CVs />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                  path="/cv-templates" 
+                  element={
+                    <ProtectedRoute>
+                      <CVTemplates />
+                    </ProtectedRoute>
+                  } 
+              />
+              <Route 
+                  path="/create-cv/:cvId" 
+                  element={
+                    <ProtectedRoute>
+                      <CreateCV />
+                    </ProtectedRoute>
+                  } 
+                />
           </Routes>
         </main>
       </div>
