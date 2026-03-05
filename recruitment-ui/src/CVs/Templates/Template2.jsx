@@ -1,7 +1,10 @@
 import React from 'react';
 import './Template2.css';
 
-const Template2 = ({ cvData, handleTextChange }) => {
+const Template2 = ({ cvData, handleTextChange, handleArrayChange }) => {
+  const displayExperiences = cvData.experiences?.length > 0 ? cvData.experiences : [{}];
+  const displayEducations = cvData.educations?.length > 0 ? cvData.educations : [{}];
+
   return (
     <div className="a4-paper template-2">
       <div className="t2-header">
@@ -41,24 +44,52 @@ const Template2 = ({ cvData, handleTextChange }) => {
               <p contentEditable suppressContentEditableWarning placeholder="VD: 2 năm" onBlur={(e) => handleTextChange('experienceYears', e.target.innerText)}>{cvData.experienceYears}</p>
             </div>
             <div className="t2-item">
-              <h4>Mức lương hiện tại:</h4>
+              <h4>Mức lương mong muốn:</h4>
               <p contentEditable suppressContentEditableWarning placeholder="VD: Thỏa thuận" onBlur={(e) => handleTextChange('currentSalary', e.target.innerText)}>{cvData.currentSalary}</p>
             </div>
+          </div>
+          
+          <div className="t2-section">
+            <h2 className="t2-section-title">MỤC TIÊU</h2>
+            <p className="t2-bullet-list" contentEditable suppressContentEditableWarning placeholder="Mục tiêu nghề nghiệp 3-5 năm tới..." onBlur={(e) => handleTextChange('summary', e.target.innerText)} style={{whiteSpace: 'pre-wrap', color: '#ccc'}}>
+              {cvData.summary}
+            </p>
           </div>
         </div>
 
         <div className="t2-col-right">
           <div className="t2-section">
-            <h2 className="t2-section-title">LĨNH VỰC / MỤC TIÊU</h2>
-            <p className="t2-bullet-list" contentEditable suppressContentEditableWarning placeholder="Nhập lĩnh vực chuyên môn và mục tiêu nghề nghiệp..." onBlur={(e) => handleTextChange('field', e.target.innerText)} style={{whiteSpace: 'pre-wrap', color: '#ccc'}}>
-              {cvData.field}
-            </p>
+            <h2 className="t2-section-title">KINH NGHIỆM LÀM VIỆC</h2>
+            {displayExperiences.map((exp, index) => (
+              <div key={`exp-${index}`} style={{ marginBottom: '15px' }}>
+                <div contentEditable suppressContentEditableWarning placeholder="Tên Công ty..." onBlur={(e) => handleArrayChange('experiences', index, 'companyName', e.target.innerText)} style={{ fontWeight: 'bold', fontSize: '16px', color: '#fff' }}>
+                  {exp.companyName}
+                </div>
+                <div contentEditable suppressContentEditableWarning placeholder="Vị trí làm việc..." onBlur={(e) => handleArrayChange('experiences', index, 'position', e.target.innerText)} style={{ color: '#aaa', fontSize: '14px', marginBottom: '5px' }}>
+                  {exp.position}
+                </div>
+                <div className="t2-bullet-list" contentEditable suppressContentEditableWarning placeholder="- Mô tả chi tiết công việc..." onBlur={(e) => handleArrayChange('experiences', index, 'description', e.target.innerText)} style={{ whiteSpace: 'pre-wrap', color: '#ccc' }}>
+                  {exp.description}
+                </div>
+              </div>
+            ))}
           </div>
+
           <div className="t2-section">
-            <h2 className="t2-section-title">TÓM TẮT HỌC VẤN</h2>
-            <p className="t2-bullet-list" contentEditable suppressContentEditableWarning placeholder="Liệt kê bằng cấp và kinh nghiệm nổi bật..." onBlur={(e) => handleTextChange('educationSummary', e.target.innerText)} style={{whiteSpace: 'pre-wrap', color: '#ccc'}}>
-              {cvData.educationSummary}
-            </p>
+            <h2 className="t2-section-title">HỌC VẤN</h2>
+            {displayEducations.map((edu, index) => (
+              <div key={`edu-${index}`} style={{ marginBottom: '15px' }}>
+                <div contentEditable suppressContentEditableWarning placeholder="Tên Trường học..." onBlur={(e) => handleArrayChange('educations', index, 'schoolName', e.target.innerText)} style={{ fontWeight: 'bold', fontSize: '16px', color: '#fff' }}>
+                  {edu.schoolName}
+                </div>
+                <div contentEditable suppressContentEditableWarning placeholder="Chuyên ngành..." onBlur={(e) => handleArrayChange('educations', index, 'major', e.target.innerText)} style={{ color: '#aaa', fontSize: '14px', marginBottom: '5px' }}>
+                  {edu.major}
+                </div>
+                <div className="t2-bullet-list" contentEditable suppressContentEditableWarning placeholder="- Thông tin bổ sung (GPA, Giải thưởng)..." onBlur={(e) => handleArrayChange('educations', index, 'description', e.target.innerText)} style={{ whiteSpace: 'pre-wrap', color: '#ccc' }}>
+                  {edu.description}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

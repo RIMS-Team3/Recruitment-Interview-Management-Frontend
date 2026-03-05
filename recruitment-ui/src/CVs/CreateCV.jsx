@@ -15,49 +15,64 @@ const CreateCV = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. STATE CHUẨN 100% THEO PAYLOAD BACKEND
+  // 1. STATE CHUẨN ĐỂ PUT JSON LÊN BACKEND (Đã bổ sung full các trường)
   const [cvData, setCvData] = useState({
-    id: cvId,
-    candidateId: "b1111111-1111-1111-1111-111111111111", // ID mặc định hoặc lấy từ context
+    cvId: cvId,
+    candidateId: "",
     fullName: "",
     position: "",
+    summary: "",
     email: "",
     phoneNumber: "",
     address: "",
     birthday: "",
     gender: "",
     nationality: "",
-    educationSummary: "",
     field: "",
+    educationSummary: "",
     currentSalary: "",
     experienceYears: "",
-    fileUrl: "",
-    fileName: "",
-    mimeType: "image/png",
-    isDefault: true
+    educations: [],
+    experiences: [],
+    projects: [],
+    certificates: [],
+    skills: []
   });
 
-  // 2. TẢI DỮ LIỆU TỪ DB LÊN KHI MỞ TRANG (GET)
+  // 2. TẢI DỮ LIỆU TỪ DB LÊN (GET)
   useEffect(() => {
     const fetchCVData = async () => {
       try {
+        // Đã sửa lỗi typo api/cFvs thành api/cvs
         const response = await fetch(`https://localhost:7272/api/cvs/${cvId}`);
         if (response.ok) {
           const data = await response.json();
+          
           setCvData(prev => ({
             ...prev,
-            ...data // Đổ toàn bộ data từ Backend vào State
+            ...data,
+            // Đổ các trường thông tin cá nhân (Nếu null thì cho thành chuỗi rỗng)
+            email: data.email || "",
+            phoneNumber: data.phoneNumber || "",
+            address: data.address || "",
+            birthday: data.birthday ? data.birthday.split('T')[0] : "", // Format ngày nếu cần
+            gender: data.gender || "",
+            nationality: data.nationality || "",
+            field: data.field || "",
+            educationSummary: data.educationSummary || "",
+            currentSalary: data.currentSalary || "",
+            experienceYears: data.experienceYears || "",
+            
+            // Đảm bảo dữ liệu mảng từ BE trả về nếu null thì vẫn là mảng rỗng để không lủng UI
+            educations: data.educations || [],
+            experiences: data.experiences || [],
+            projects: data.projects || [],
+            certificates: data.certificates || [],
+            skills: data.skills || []
           }));
         }
       } catch (error) {
-        console.warn("Dùng mock data do lỗi API hoặc đang dùng ID ảo:", error);
-        // Fallback data mẫu để test UI
-        setCvData(prev => ({ 
-          ...prev, 
-          fullName: "Tên Ứng Viên", 
-          position: "Vị Trí Ứng Tuyển",
-          fileUrl: "https://placehold.co/300x400?text=Avatar"
-        }));
+        console.warn("Lỗi API, không thể tải CV:", error);
       } finally {
         setIsLoading(false);
       }
@@ -67,67 +82,169 @@ const CreateCV = () => {
     else setIsLoading(false);
   }, [cvId]);
 
-  // HÀM CẬP NHẬT TEXT KHI GÕ VÀO TEMPLATE
+  // Hàm cập nhật các trường text cơ bản
   const handleTextChange = (field, value) => {
     setCvData(prevData => ({ ...prevData, [field]: value }));
   };
 
-  // 3. LƯU DỮ LIỆU XUỐNG DB (PUT)
-  // LƯU DỮ LIỆU XUỐNG DB (PUT)
+  // Hàm cập nhật các mảng dữ liệu (Học vấn, Kinh nghiệm...)
+  const handleArrayChange = (arrayName, index, field, value) => {
+    setCvData(prevData => {
+      const newArray = [...(prevData[arrayName] || [])];
+      if (!newArray[index]) newArray[index] = {}; 
+      newArray[index][field] = value; 
+      return { ...prevData, [arrayName]: newArray };
+    });
+  };
+
+// 3. LƯU DỮ LIỆU BẰNG JSON (PUT /editor)
   const handleSaveCV = async () => {
     if (cvId.startsWith('mock-cv')) {
-        alert("⚠️ Bạn đang ở chế độ xem trước (Mock ID). Hãy quay lại trang chọn mẫu và đảm bảo API POST tạo CV thành công trước khi lưu nhé!");
+        alert("⚠️ Đang ở chế độ xem trước. Hãy quay lại chọn mẫu để tạo CV thật!");
         return;
     }
 
     setIsSaving(true);
     try {
-      // Đóng gói bằng FormData vì Backend nhận IFormFile
-      const formData = new FormData();
-      formData.append('fullName', cvData.fullName || '');
-      formData.append('position', cvData.position || '');
-      formData.append('email', cvData.email || '');
-      formData.append('phoneNumber', cvData.phoneNumber || '');
-      formData.append('address', cvData.address || '');
-      formData.append('birthday', cvData.birthday || ''); // Đảm bảo format YYYY-MM-DD nếu BE yêu cầu
-      formData.append('gender', cvData.gender || '');
-      formData.append('nationality', cvData.nationality || '');
-      formData.append('educationSummary', cvData.educationSummary || '');
-      formData.append('field', cvData.field || '');
-      formData.append('currentSalary', cvData.currentSalary || '');
-      formData.append('experienceYears', cvData.experienceYears || '');
-      
-      console.log("Chuẩn bị gửi dữ liệu lên Backend qua FormData...");
+      // --- BỘ LỌC AN TOÀN CHO C# ---
+      // 1. Xử lý Giới tính: C# cần INT (0 hoặc 1). Nếu người dùng gõ chữ "nam"/"nữ" thì tự động dịch ra số.
+      let safeGender = null;
+      if (cvData.gender !== null && cvData.gender !== undefined && cvData.gender !== "") {
+          const gStr = String(cvData.gender).toLowerCase().trim();
+          if (gStr === "nam" || gStr === "0") safeGender = 0;
+          else if (gStr === "nữ" || gStr === "nu" || gStr === "1") safeGender = 1;
+          else if (!isNaN(gStr)) safeGender = parseInt(gStr);
+      }
 
-      const response = await fetch(`https://localhost:7272/api/cvs/${cvId}`, {
+      // 2. Xử lý Ngày sinh: C# cần DateOnly chuẩn ISO (YYYY-MM-DD).
+      let safeBirthday = null;
+      if (cvData.birthday && cvData.birthday.trim() !== "") {
+          let bStr = cvData.birthday.trim();
+          
+          // Nếu người dùng nhập dấu '/' (Ví dụ: 12/12/2022)
+          if (bStr.includes('/')) {
+              let parts = bStr.split('/');
+              if (parts.length === 3) {
+                  // Giả định định dạng là DD/MM/YYYY -> Đảo lại thành YYYY-MM-DD
+                  let day = parts[0].padStart(2, '0');
+                  let month = parts[1].padStart(2, '0');
+                  let year = parts[2];
+                  safeBirthday = `${year}-${month}-${day}`;
+              } else {
+                  safeBirthday = bStr;
+              }
+          } 
+          // Nếu người dùng nhập dấu '-' theo kiểu DD-MM-YYYY (Ví dụ: 12-12-2022)
+          else if (bStr.includes('-') && bStr.split('-')[0].length < 4) {
+              let parts = bStr.split('-');
+              let day = parts[0].padStart(2, '0');
+              let month = parts[1].padStart(2, '0');
+              let year = parts[2];
+              safeBirthday = `${year}-${month}-${day}`;
+          }
+          else {
+              safeBirthday = bStr; // Nếu đã chuẩn YYYY-MM-DD thì giữ nguyên
+          }
+      }
+      // 3. Xử lý Lương & Kinh nghiệm: Ép về số, rỗng thành null
+      let safeSalary = (cvData.currentSalary === "" || cvData.currentSalary === undefined) ? null : Number(cvData.currentSalary);
+      let safeExpYears = (cvData.experienceYears === "" || cvData.experienceYears === undefined) ? null : Number(cvData.experienceYears);
+
+
+      // ĐÓNG GÓI PAYLOAD GỬI ĐI
+      const payload = {
+        cvId: cvId,
+        candidateId: cvData.candidateId || localStorage.getItem('candidateId'), 
+        fullName: cvData.fullName || "",
+        position: cvData.position || "",
+        summary: cvData.summary || "",
+        
+        email: cvData.email || "",
+        phoneNumber: cvData.phoneNumber || "",
+        address: cvData.address || "",
+        nationality: cvData.nationality || "",
+        field: cvData.field || "",
+        
+        // Dùng các biến đã được lọc an toàn ở trên
+        gender: safeGender,
+        birthday: safeBirthday,
+        currentSalary: safeSalary,
+        experienceYears: safeExpYears,
+
+        // --- CÁC MẢNG DỮ LIỆU ---
+        educations: (cvData.educations || []).map(item => ({
+            id: item.id || undefined, 
+            schoolName: item.schoolName || "",
+            major: item.major || "",
+            startDate: item.startDate || null,
+            endDate: item.endDate || null,
+            description: item.description || ""
+        })),
+        experiences: (cvData.experiences || []).map(item => ({
+            id: item.id || undefined,
+            companyName: item.companyName || "",
+            position: item.position || "",
+            startDate: item.startDate || null,
+            endDate: item.endDate || null,
+            description: item.description || ""
+        })),
+        projects: (cvData.projects || []).map(item => ({
+            id: item.id || undefined,
+            projectName: item.projectName || "",
+            role: item.role || "",
+            startDate: item.startDate || null,
+            endDate: item.endDate || null,
+            description: item.description || ""
+        })),
+        certificates: (cvData.certificates || []).map(item => ({
+            id: item.id || undefined,
+            certificateName: item.certificateName || "",
+            organization: item.organization || "",
+            issueDate: item.issueDate || null,
+            expiredDate: item.expiredDate || null
+        })),
+        skills: (cvData.skills || []).map(item => ({
+            skillName: item.skillName || "",
+            level: item.level ? Number(item.level) : 0 
+        }))
+      };
+
+      console.log("🚀 CHUẨN BỊ GỬI PAYLOAD LÊN BACKEND:", JSON.stringify(payload, null, 2));
+
+      const token = localStorage.getItem("accessToken");
+
+      const response = await fetch(`https://localhost:7272/api/cvs/${cvId}/editor`, {
         method: 'PUT',
-        // Tương tự, KHÔNG ĐƯỢC có headers 'Content-Type': 'application/json'
-        body: formData
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
-        alert("🎉 Đã lưu CV thành công vào Database!");
+        alert("🎉 Đã lưu CV thành công!");
       } else {
         const err = await response.text();
         console.error("Lỗi từ backend:", err);
-        throw new Error(`API báo lỗi: ${response.status}`);
+        throw new Error(`API báo lỗi: ${response.status} - ${err}`);
       }
     } catch (error) {
       console.error("Lỗi khi lưu CV:", error);
-      alert("❌ Lưu thất bại! Hãy check F12 Console để xem chi tiết.");
+      alert("❌ Lưu thất bại! Hãy kiểm tra lại Console (F12).");
     } finally {
       setIsSaving(false);
     }
   };
 
   const renderTemplate = () => {
-    if (isLoading) return <div style={{padding: '50px', textAlign:'center'}}>Đang tải dữ liệu CV...</div>;
+    if (isLoading) return <div style={{padding: '50px', textAlign:'center'}}>Đang tải...</div>;
 
     switch (activeTemplateId) {
-      case 'tpl-1': return <Template1 cvData={cvData} handleTextChange={handleTextChange} />;
-      case 'tpl-2': return <Template2 cvData={cvData} handleTextChange={handleTextChange} />;
-      case 'tpl-3': return <Template3 cvData={cvData} handleTextChange={handleTextChange} />;
-      default: return <Template1 cvData={cvData} handleTextChange={handleTextChange} />;
+      case 'tpl-1': return <Template1 cvData={cvData} handleTextChange={handleTextChange} handleArrayChange={handleArrayChange} />;
+      case 'tpl-2': return <Template2 cvData={cvData} handleTextChange={handleTextChange} handleArrayChange={handleArrayChange} />;
+      case 'tpl-3': return <Template3 cvData={cvData} handleTextChange={handleTextChange} handleArrayChange={handleArrayChange} />;
+      default: return <Template1 cvData={cvData} handleTextChange={handleTextChange} handleArrayChange={handleArrayChange} />;
     }
   };
 
@@ -141,7 +258,13 @@ const CreateCV = () => {
 
       <main className="cv-workspace">
         <div className="workspace-header">
-          <input type="text" className="cv-name-input" defaultValue="CV chưa đặt tên" />
+          <input 
+            type="text" 
+            className="cv-name-input" 
+            value={cvData.fullName || ""} 
+            placeholder="CV chưa đặt tên"
+            onChange={(e) => handleTextChange('fullName', e.target.value)} 
+          />
           <button 
             className="btn-save" 
             onClick={handleSaveCV}

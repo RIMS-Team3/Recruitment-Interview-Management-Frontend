@@ -1,74 +1,100 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import './CVs.css';
 import { AuthContext } from '../Auth/AuthContext'; 
 
 const CVManagement = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [cvs, setCvs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [cvs, setCvs] = useState([
-    {
-      id: 'mock-1',
-      title: 'AnhKD_Curriculum Vitae_BE Intern',
-      imgUrl: 'https://placehold.co/300x420/f9f9f9/a3a3a3?text=CV+1+BE+Intern',
-    },
-    {
-      id: 'mock-2',
-      title: 'CV xin việc',
-      imgUrl: 'https://placehold.co/300x420/ffcccc/000000?text=CV+2+Xin+Viec',
-    }
-  ]);
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
 
-  // Đổi logic hàm handleCreateCV: Chỉ chuyển hướng sang trang chọn mẫu
+  useEffect(() => {
+    const fetchMyCVs = async () => {
+      try {
+        let realCandidateId = user?.candidateId || user?.id;
+
+        // Nếu context rỗng, gọi API lấy ID tương tự trang CVTemplates
+        if (!realCandidateId) {
+          const profileResponse = await fetch(`https://localhost:7272/api/candidates/me`, {
+             headers: { 'Accept': 'application/json' }
+          });
+          if (profileResponse.ok) {
+             const profileData = await profileResponse.json();
+             realCandidateId = profileData.id || profileData.candidateId;
+          } else {
+             setIsLoading(false);
+             return; // Dừng lại nếu không lấy được ID
+          }
+        }
+
+        const response = await fetch(`https://localhost:7272/api/cvs/candidate/${realCandidateId}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setCvs(data); 
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách CV:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMyCVs();
+  }, [user]);
+
   const handleCreateCV = () => {
     navigate('/cv-templates'); 
   };
 
   return (
     <div className="topcv-container">
-      {/* Banner */}
       <div className="banner">
         <span>Hãy chia sẻ nhu cầu công việc để nhận gợi ý việc làm tốt nhất</span>
         <button className="btn-update-job">Cập nhật nhu cầu công việc →</button>
       </div>
 
-      {/* Main Content */}
       <main className="main-content">
-        {/* Left Column - CV List */}
         <section className="cv-section">
           <div className="section-header">
             <h2>CV đã tạo trên hệ thống</h2>
-            <button 
-              className="btn-create-cv" 
-              onClick={handleCreateCV}
-            >
-              + Tạo CV
+            <button className="btn-create-cv" onClick={handleCreateCV}>
+              + Tạo CV mới
             </button>
           </div>
 
-          <div className="cv-grid">
-            {cvs.map((cv) => (
-              <div className="cv-card" key={cv.id}>
-                <div className="cv-image">
-                  <img 
-                    src={cv.imgUrl} 
-                    alt={cv.title} 
-                    onError={(e) => {
-                      e.target.onerror = null; 
-                      e.target.src = 'https://placehold.co/300x420/eeeeee/999999?text=No+Image';
-                    }}
-                  />
+          {isLoading ? (
+            <p style={{marginTop: '20px'}}>Đang tải danh sách CV...</p>
+          ) : cvs.length === 0 ? (
+            <p style={{marginTop: '20px'}}>Bạn chưa có CV nào. Hãy tạo một bản nhé!</p>
+          ) : (
+            <div className="cv-grid">
+              {cvs.map((cv) => (
+                <div className="cv-card" key={cv.id}>
+                  <Link to={`/create-cv/${cv.id}`} className="cv-image">
+                    <img 
+                      src={`https://placehold.co/300x420/f9f9f9/a3a3a3?text=${encodeURIComponent(cv.fullName || "CV")}`} 
+                      alt={cv.fullName} 
+                    />
+                  </Link>
+                  <div className="cv-info">
+                    <p><b>{cv.fullName || "CV chưa đặt tên"}</b></p>
+                    <p style={{fontSize: "12px", color: "gray"}}>{cv.position || "Chưa rõ vị trí"}</p>
+                    <p style={{fontSize: "11px", color: "#888", marginTop: "4px"}}>Cập nhật: {formatDate(cv.updatedAt)}</p>
+                  </div>
                 </div>
-                <div className="cv-info">
-                  <p>{cv.title}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
-        {/* Right Column - Sidebar */}
         <aside className="sidebar">
           <div className="profile-card box-shadow">
             <div className="profile-info">
@@ -79,37 +105,6 @@ const CVManagement = () => {
                 <span className="badge-verified">Tài khoản đã xác thực</span>
               </div>
             </div>
-            <a href="#" className="upgrade-link">⇪ Nâng cấp tài khoản</a>
-          </div>
-
-          <div className="toggle-card box-shadow">
-            <div className="toggle-row">
-              <label className="switch">
-                <input type="checkbox" />
-                <span className="slider round"></span>
-              </label>
-              <span className="toggle-label text-muted">Đang Tắt tìm việc</span>
-            </div>
-            <p className="description">
-              Bật tìm việc không chỉ giúp Nhà tuyển dụng (NTD) nhìn thấy và chủ động mang đến cơ hội cho bạn, còn giúp hồ sơ của bạn nổi bật hơn và được chú ý nhiều hơn trên danh sách tìm kiếm của NTD.
-            </p>
-          </div>
-
-          <div className="toggle-card box-shadow">
-            <div className="toggle-row">
-              <label className="switch">
-                <input type="checkbox" defaultChecked />
-                <span className="slider round green"></span>
-              </label>
-              <span className="toggle-label text-green">Cho phép NTD tìm kiếm hồ sơ</span>
-            </div>
-            <p className="description">
-              Bạn đang cho phép Nhà tuyển dụng (NTD) tìm kiếm hồ sơ, các NTD uy tín có thể tiếp cận thông tin kinh nghiệm làm việc, học vấn, kỹ năng... trên CV của bạn.
-            </p>
-            <ul className="benefits-list">
-              <li>Nếu cảm thấy phù hợp, NTD sẽ gửi tới bạn một <b>Lời mời kết nối</b>.</li>
-              <li>Toàn bộ thông tin định danh cá nhân của bạn như họ tên, ảnh đại diện, số điện thoại, email, địa chỉ sẽ không được chia sẻ với NTD cho đến khi bạn xác nhận đồng ý.</li>
-            </ul>
           </div>
         </aside>
       </main>
