@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+// Thêm useNavigate vào đây
+import { useParams, Link, useNavigate } from 'react-router-dom'; 
 import './JobDetails.css';
 
 const JobPostDetails = () => {
-    const { id } = useParams(); // Job ID từ URL
+    const { id } = useParams();
+    const navigate = useNavigate(); // Khởi tạo điều hướng
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
-    
-    // State lưu trữ candidateId sau khi quy đổi từ userId
     const [candidateId, setCandidateId] = useState(null);
 
-    // State quản lý thông báo (Toast)
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState("");
     const [isError, setIsError] = useState(false);
@@ -18,16 +17,12 @@ const JobPostDetails = () => {
 
     useEffect(() => {
         const userId = localStorage.getItem("userId");
-        
-        // Hàm lấy dữ liệu khởi tạo
         const initData = async () => {
             try {
-                // 1. Lấy chi tiết công việc
                 const jobRes = await fetch(`https://localhost:7272/api/jobs/${id}`);
                 const jobData = await jobRes.json();
                 setJob(jobData);
 
-                // 2. Nếu có userId, gọi API lấy candidateId
                 if (userId) {
                     const candRes = await fetch(`https://localhost:7272/api/application/candidate/${userId}`);
                     const candData = await candRes.json();
@@ -41,30 +36,24 @@ const JobPostDetails = () => {
                 setLoading(false);
             }
         };
-
         initData();
     }, [id]);
 
-    // Hàm xử lý ứng tuyển
     const handleApply = async () => {
-        // Kiểm tra đăng nhập
         if (!localStorage.getItem("userId")) {
             showNotify(true, "Vui lòng đăng nhập để thực hiện ứng tuyển!");
             return;
         }
-
-        // Kiểm tra xem đã lấy được candidateId chưa
         if (!candidateId) {
             showNotify(true, "Không tìm thấy thông tin ứng viên của bạn!");
             return;
         }
 
         setIsApplying(true);
-        
         const applyPayload = {
             jobId: id, 
-            candidateId: candidateId, // Sử dụng ID đã quy đổi
-            cvId: "19191919-1919-1919-1919-191919191919" // ID CV mặc định
+            candidateId: candidateId,
+            cvId: "19191919-1919-1919-1919-191919191919" 
         };
 
         try {
@@ -73,14 +62,10 @@ const JobPostDetails = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(applyPayload)
             });
-
             const result = await response.json();
-
-            // Xử lý payload: { isSuccess, message }
             if (result.isSuccess) {
                 showNotify(false, result.message || "Ứng tuyển thành công!");
             } else {
-                // Trường hợp đã ứng tuyển hoặc lỗi nghiệp vụ khác
                 showNotify(true, result.message);
             }
         } catch (err) {
@@ -90,7 +75,6 @@ const JobPostDetails = () => {
         }
     };
 
-    // Hàm tiện ích hiển thị thông báo
     const showNotify = (error, msg) => {
         setIsError(error);
         setToastMsg(msg);
@@ -114,7 +98,6 @@ const JobPostDetails = () => {
 
     return (
         <div className="job-page-wrapper">
-            {/* THÔNG BÁO (TOAST) */}
             {showToast && (
                 <div className={`custom-toast ${isError ? 'toast-error' : ''}`}>
                     <span className="toast-icon">{isError ? '⚠️' : '✅'}</span>
@@ -204,6 +187,18 @@ const JobPostDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {/* NÚT FIXED - Đã thêm onClick để điều hướng sang trang danh sách ứng tuyển */}
+            <button 
+                className="floating-user-add-btn" 
+                title="Danh sách ứng tuyển"
+                onClick={() => navigate('/applied-jobs')}
+            >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 12C9.21 12 11 10.21 11 8C11 5.79 9.21 4 7 4C4.79 4 3 5.79 3 8C3 10.21 4.79 12 7 12ZM7 14C4.33 14 0 15.34 0 18V20H14V18C14 15.34 9.67 14 7 14Z" fill="#00b14f"/>
+                    <path d="M21 9V6H19V9H16V11H19V14H21V11H24V9H21Z" fill="#00b14f"/>
+                </svg>
+            </button>
         </div>
     );
 };

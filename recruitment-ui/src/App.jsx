@@ -13,6 +13,7 @@ import ProtectedRoute from "./Auth/ProtectedRoute";
 import RoleGuard from "./Auth/RoleGuard";
 import CreateCompany from "./Auth/CreateCompany";
 import ApplicationList from "./Applications/ApplicationList";
+import ListAppliedJobs from './AppliJobs/ListAppliedJobs';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -125,7 +126,7 @@ function App() {
             <Route path="/jobpostdetail/:id" element={<JobPostDetails />} />
             <Route path="/interview/:companyId" element={<InterviewPage />} />
             <Route path="/interviews" element={<InterviewPage />} />
-
+            <Route path="/applied-jobs" element={<ListAppliedJobs />} />
             <Route
               path="/saved-jobs"
               element={
