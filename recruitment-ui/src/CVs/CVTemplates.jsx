@@ -81,11 +81,14 @@ const CVTemplates = () => {
       formData.append('position', 'Vị trí ứng tuyển');
       formData.append('email', user?.email || '');
       formData.append('isDefault', 'true');
+      
+      // ✅ BỔ SUNG DÒNG NÀY ĐỂ BÁO CHO BACKEND BIẾT BẠN CHỌN MẪU NÀO
+      formData.append('templateId', templateId); 
 
       const response = await fetch('https://localhost:7272/api/cvs', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}` // Truyền luôn Token vào đây cho an toàn
+          'Authorization': `Bearer ${token}` 
         },
         body: formData 
       });
