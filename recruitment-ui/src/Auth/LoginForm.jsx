@@ -165,13 +165,48 @@ const LoginForm = () => {
 
 
       } else {
-        // REGISTER SUCCESS
-        toast.success("Đăng ký thành công! Hãy đăng nhập.", { id: toastId });
-        setFullName("");
-        setEmail("");
-        setPassword("");
-        setIsLogin(true);
-      }
+  // REGISTER SUCCESS -> LOGIN LUÔN
+
+  const loginRes = await fetch("https://localhost:7272/api/Auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const loginData = await loginRes.json();
+
+  if (!loginRes.ok) {
+    toast.success("Đăng ký thành công! Hãy đăng nhập.", { id: toastId });
+    setIsLogin(true);
+    return;
+  }
+
+  // LƯU TOKEN
+  localStorage.setItem("accessToken", loginData.accessToken);
+  localStorage.setItem("email", loginData.email);
+  localStorage.setItem("fullName", loginData.fullName);
+  localStorage.setItem("role", loginData.role);
+  localStorage.setItem("userId", loginData.userId);
+
+  setUser({
+    id: loginData.userId,
+    candidateId: loginData.candidateId,
+    cvId: loginData.cvId,
+    token: loginData.accessToken,
+    email: loginData.email,
+    fullName: loginData.fullName,
+    role: loginData.role,
+  });
+
+  toast.success("Đăng ký và đăng nhập thành công!", { id: toastId });
+
+  // ĐIỀU HƯỚNG
+  if (loginData.role === 0) {
+    navigate("/select-role");
+  } else {
+    navigate("/");
+  }
+}
 
     } catch (err) {
       console.error("Server error:", err);

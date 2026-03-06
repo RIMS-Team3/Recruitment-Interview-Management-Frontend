@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import html2pdf from 'html2pdf.js'; // 👉 THÊM: Import thư viện xuất PDF
 import Template1 from './Templates/Template1';
 import Template2 from './Templates/Template2';
 import Template3 from './Templates/Template3';
@@ -15,7 +16,10 @@ const CreateCV = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. STATE CHUẨN ĐỂ PUT JSON LÊN BACKEND (Đã bổ sung full các trường)
+  // 👉 THÊM: Tạo ref để "móc" vào khung CV cần xuất PDF
+  const cvRef = useRef(null); 
+
+  // 1. STATE CHUẨN ĐỂ PUT JSON LÊN BACKEND
   const [cvData, setCvData] = useState({
     cvId: cvId,
     candidateId: "",
@@ -43,7 +47,6 @@ const CreateCV = () => {
   useEffect(() => {
     const fetchCVData = async () => {
       try {
-        // Đã sửa lỗi typo api/cFvs thành api/cvs
         const response = await fetch(`https://localhost:7272/api/cvs/${cvId}`);
         if (response.ok) {
           const data = await response.json();
@@ -51,25 +54,26 @@ const CreateCV = () => {
           setCvData(prev => ({
             ...prev,
             ...data,
-            // Đổ các trường thông tin cá nhân (Nếu null thì cho thành chuỗi rỗng)
             email: data.email || "",
             phoneNumber: data.phoneNumber || "",
             address: data.address || "",
-            birthday: data.birthday ? data.birthday.split('T')[0] : "", // Format ngày nếu cần
+            birthday: data.birthday ? data.birthday.split('T')[0] : "",
             gender: data.gender || "",
             nationality: data.nationality || "",
             field: data.field || "",
             educationSummary: data.educationSummary || "",
             currentSalary: data.currentSalary || "",
             experienceYears: data.experienceYears || "",
-            
-            // Đảm bảo dữ liệu mảng từ BE trả về nếu null thì vẫn là mảng rỗng để không lủng UI
             educations: data.educations || [],
             experiences: data.experiences || [],
             projects: data.projects || [],
             certificates: data.certificates || [],
             skills: data.skills || []
           }));
+
+          if (data.templateId) {
+            setActiveTemplateId(data.templateId);
+          }
         }
       } catch (error) {
         console.warn("Lỗi API, không thể tải CV:", error);
@@ -82,12 +86,10 @@ const CreateCV = () => {
     else setIsLoading(false);
   }, [cvId]);
 
-  // Hàm cập nhật các trường text cơ bản
   const handleTextChange = (field, value) => {
     setCvData(prevData => ({ ...prevData, [field]: value }));
   };
 
-  // Hàm cập nhật các mảng dữ liệu (Học vấn, Kinh nghiệm...)
   const handleArrayChange = (arrayName, index, field, value) => {
     setCvData(prevData => {
       const newArray = [...(prevData[arrayName] || [])];
@@ -97,7 +99,29 @@ const CreateCV = () => {
     });
   };
 
-// 3. LƯU DỮ LIỆU BẰNG JSON (PUT /editor)
+  // 👉 THÊM: HÀM XỬ LÝ XUẤT PDF
+  const handleExportPDF = () => {
+    const element = cvRef.current; // Lấy thẻ div chứa CV
+    if (!element) return;
+
+    // Đặt tên file thân thiện (Bỏ dấu cách thay bằng dấu _)
+    const fileName = cvData.fullName 
+      ? `CV_${cvData.fullName.trim().replace(/\s+/g, '_')}.pdf` 
+      : 'My_CV.pdf';
+
+    const opt = {
+      margin:       0,
+      filename:     fileName,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true }, // Cực quan trọng để load ảnh Avatar từ server khác
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Biến hóa HTML thành PDF và tải về
+    html2pdf().set(opt).from(element).save();
+  };
+
+  // 3. LƯU DỮ LIỆU BẰNG JSON (PUT /editor)
   const handleSaveCV = async () => {
     if (cvId.startsWith('mock-cv')) {
         alert("⚠️ Đang ở chế độ xem trước. Hãy quay lại chọn mẫu để tạo CV thật!");
@@ -106,8 +130,6 @@ const CreateCV = () => {
 
     setIsSaving(true);
     try {
-      // --- BỘ LỌC AN TOÀN CHO C# ---
-      // 1. Xử lý Giới tính: C# cần INT (0 hoặc 1). Nếu người dùng gõ chữ "nam"/"nữ" thì tự động dịch ra số.
       let safeGender = null;
       if (cvData.gender !== null && cvData.gender !== undefined && cvData.gender !== "") {
           const gStr = String(cvData.gender).toLowerCase().trim();
@@ -116,25 +138,18 @@ const CreateCV = () => {
           else if (!isNaN(gStr)) safeGender = parseInt(gStr);
       }
 
-      // 2. Xử lý Ngày sinh: C# cần DateOnly chuẩn ISO (YYYY-MM-DD).
       let safeBirthday = null;
       if (cvData.birthday && cvData.birthday.trim() !== "") {
           let bStr = cvData.birthday.trim();
-          
-          // Nếu người dùng nhập dấu '/' (Ví dụ: 12/12/2022)
           if (bStr.includes('/')) {
               let parts = bStr.split('/');
               if (parts.length === 3) {
-                  // Giả định định dạng là DD/MM/YYYY -> Đảo lại thành YYYY-MM-DD
                   let day = parts[0].padStart(2, '0');
                   let month = parts[1].padStart(2, '0');
                   let year = parts[2];
                   safeBirthday = `${year}-${month}-${day}`;
-              } else {
-                  safeBirthday = bStr;
-              }
+              } else { safeBirthday = bStr; }
           } 
-          // Nếu người dùng nhập dấu '-' theo kiểu DD-MM-YYYY (Ví dụ: 12-12-2022)
           else if (bStr.includes('-') && bStr.split('-')[0].length < 4) {
               let parts = bStr.split('-');
               let day = parts[0].padStart(2, '0');
@@ -142,36 +157,28 @@ const CreateCV = () => {
               let year = parts[2];
               safeBirthday = `${year}-${month}-${day}`;
           }
-          else {
-              safeBirthday = bStr; // Nếu đã chuẩn YYYY-MM-DD thì giữ nguyên
-          }
+          else { safeBirthday = bStr; }
       }
-      // 3. Xử lý Lương & Kinh nghiệm: Ép về số, rỗng thành null
+
       let safeSalary = (cvData.currentSalary === "" || cvData.currentSalary === undefined) ? null : Number(cvData.currentSalary);
       let safeExpYears = (cvData.experienceYears === "" || cvData.experienceYears === undefined) ? null : Number(cvData.experienceYears);
 
-
-      // ĐÓNG GÓI PAYLOAD GỬI ĐI
       const payload = {
         cvId: cvId,
+        templateId: activeTemplateId, 
         candidateId: cvData.candidateId || localStorage.getItem('candidateId'), 
         fullName: cvData.fullName || "",
         position: cvData.position || "",
         summary: cvData.summary || "",
-        
         email: cvData.email || "",
         phoneNumber: cvData.phoneNumber || "",
         address: cvData.address || "",
         nationality: cvData.nationality || "",
         field: cvData.field || "",
-        
-        // Dùng các biến đã được lọc an toàn ở trên
         gender: safeGender,
         birthday: safeBirthday,
         currentSalary: safeSalary,
         experienceYears: safeExpYears,
-
-        // --- CÁC MẢNG DỮ LIỆU ---
         educations: (cvData.educations || []).map(item => ({
             id: item.id || undefined, 
             schoolName: item.schoolName || "",
@@ -209,10 +216,7 @@ const CreateCV = () => {
         }))
       };
 
-      console.log("🚀 CHUẨN BỊ GỬI PAYLOAD LÊN BACKEND:", JSON.stringify(payload, null, 2));
-
       const token = localStorage.getItem("accessToken");
-
       const response = await fetch(`https://localhost:7272/api/cvs/${cvId}/editor`, {
         method: 'PUT',
         headers: {
@@ -226,7 +230,6 @@ const CreateCV = () => {
         alert("🎉 Đã lưu CV thành công!");
       } else {
         const err = await response.text();
-        console.error("Lỗi từ backend:", err);
         throw new Error(`API báo lỗi: ${response.status} - ${err}`);
       }
     } catch (error) {
@@ -238,7 +241,7 @@ const CreateCV = () => {
   };
 
   const renderTemplate = () => {
-    if (isLoading) return <div style={{padding: '50px', textAlign:'center'}}>Đang tải...</div>;
+    if (isLoading) return <div className="loading-spinner">Đang tải dữ liệu CV...</div>;
 
     switch (activeTemplateId) {
       case 'tpl-1': return <Template1 cvData={cvData} handleTextChange={handleTextChange} handleArrayChange={handleArrayChange} />;
@@ -250,31 +253,58 @@ const CreateCV = () => {
 
   return (
     <div className="create-cv-layout">
-      <aside className="cv-sidebar">
-        <button className={`menu-btn ${activeTemplateId === 'tpl-1' ? 'active' : ''}`} onClick={() => setActiveTemplateId('tpl-1')}>Dùng Mẫu 1</button>
-        <button className={`menu-btn ${activeTemplateId === 'tpl-2' ? 'active' : ''}`} onClick={() => setActiveTemplateId('tpl-2')}>Dùng Mẫu 2</button>
-        <button className={`menu-btn ${activeTemplateId === 'tpl-3' ? 'active' : ''}`} onClick={() => setActiveTemplateId('tpl-3')}>Dùng Mẫu 3</button>
-      </aside>
-
-      <main className="cv-workspace">
-        <div className="workspace-header">
+      {/* Header nổi (Sticky Bar) chứa Tên CV và Nút Lưu / Nút PDF */}
+      <header className="workspace-header">
+        <div className="header-container">
           <input 
             type="text" 
             className="cv-name-input" 
             value={cvData.fullName || ""} 
-            placeholder="CV chưa đặt tên"
+            placeholder="Nhập tên CV của bạn..."
             onChange={(e) => handleTextChange('fullName', e.target.value)} 
+            disabled={isLoading}
           />
-          <button 
-            className="btn-save" 
-            onClick={handleSaveCV}
-            disabled={isSaving || isLoading}
-            style={{ opacity: (isSaving || isLoading) ? 0.7 : 1, cursor: (isSaving || isLoading) ? 'not-allowed' : 'pointer' }}
-          >
-            {isSaving ? '⏳ Đang lưu...' : '💾 Lưu CV'}
-          </button>
+          
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {/* 👉 THÊM: Nút bấm Xuất PDF */}
+            <button 
+              className="btn-export" 
+              onClick={handleExportPDF}
+              style={{
+                backgroundColor: '#ef4444', 
+                color: 'white', 
+                border: 'none', 
+                padding: '10px 24px', 
+                borderRadius: '6px', 
+                fontSize: '15px', 
+                fontWeight: '600', 
+                cursor: 'pointer',
+                boxShadow: '0 4px 6px rgba(239, 68, 68, 0.2)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => { e.target.style.backgroundColor = '#dc2626'; e.target.style.transform = 'translateY(-1px)'; }}
+              onMouseOut={(e) => { e.target.style.backgroundColor = '#ef4444'; e.target.style.transform = 'translateY(0)'; }}
+            >
+              📄 Xuất PDF
+            </button>
+
+            <button 
+              className={`btn-save ${(isSaving || isLoading) ? 'disabled' : ''}`} 
+              onClick={handleSaveCV}
+              disabled={isSaving || isLoading}
+            >
+              {isSaving ? '⏳ Đang xử lý...' : '💾 Lưu CV ngay'}
+            </button>
+          </div>
         </div>
-        {renderTemplate()}
+      </header>
+
+      {/* Khu vực giấy A4 hiển thị CV */}
+      <main className="cv-workspace">
+        {/* 👉 THÊM: Gắn ref vào div bọc template để làm mốc chụp PDF */}
+        <div ref={cvRef}>
+          {renderTemplate()}
+        </div>
       </main>
     </div>
   );

@@ -23,7 +23,22 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useContext(AuthContext);
+  const handleProfileClick = () => {
+    const role = localStorage.getItem("role");
 
+    if (role === "2") {
+      navigate("/manage-cv"); // Candidate
+    }
+    else if (role === "3") {
+      navigate("/employer/applications"); // Employer
+    }
+    else if (role === "1") {
+      navigate("/admin/cvs"); // Admin
+    }
+    else {
+      navigate("/login");
+    }
+  };
   const hideNavbarPaths = ["/login"];
 
   if (hideNavbarPaths.includes(location.pathname)) {
@@ -40,10 +55,11 @@ const Navbar = () => {
 
         <ul className="nav-menu">
           <li>Việc làm</li>
-          <li>
-            <Link to="/manage-cv" style={{ textDecoration: "none", color: "inherit" }}>
-              Hồ sơ & CV
-            </Link>
+          <li
+            onClick={handleProfileClick}
+            style={{ cursor: "pointer" }}
+          >
+            Hồ sơ & CV
           </li>
           <li>Công cụ</li>
           <li>Cẩm nang</li>
@@ -113,7 +129,7 @@ function App() {
       />
       <div className="app-container">
         <Navbar />
-        
+
         <main className="app-main-content">
           <Routes>
             <Route path="/" element={<RoleGuard><HomePage />
@@ -123,6 +139,14 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/select-role" element={<SelectRole />} />
+            <Route
+              path="/manage-cv"
+              element={
+                <ProtectedRoute requiredRole={2}>
+                  <CVs />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/employer/applications"
               element={
@@ -141,36 +165,37 @@ function App() {
 
             <Route path="/saved-jobs" element={
 
+              <ProtectedRoute>
+                <SavedJobs />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/create-company" element={<CreateCompany />} />
+            <Route
+              path="/manage-cv"
+              element={
+
                 <ProtectedRoute>
-                  <SavedJobs />
+                  <CVs />
                 </ProtectedRoute>
               }
             />
-            <Route path="/create-company" element={<CreateCompany />} />
-            <Route 
-                path="/manage-cv" 
-                element={
-                  <ProtectedRoute>
-                    <CVs />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                  path="/cv-templates" 
-                  element={
-                    <ProtectedRoute>
-                      <CVTemplates />
-                    </ProtectedRoute>
-                  } 
-              />
-              <Route 
-                  path="/create-cv/:cvId" 
-                  element={
-                    <ProtectedRoute>
-                      <CreateCV />
-                    </ProtectedRoute>
-                  } 
-                />
+            <Route
+              path="/cv-templates"
+              element={
+                <ProtectedRoute>
+                  <CVTemplates />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-cv/:cvId"
+              element={
+                <ProtectedRoute>
+                  <CreateCV />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
