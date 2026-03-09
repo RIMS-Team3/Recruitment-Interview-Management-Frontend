@@ -7,12 +7,8 @@ const JobPostDetails = () => {
     const navigate = useNavigate();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
-    
-    // States quản lý thông tin người dùng
     const [candidateId, setCandidateId] = useState(null);
-    const [cvId, setCvId] = useState(null);
 
-    // States quản lý thông báo (Toast)
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState("");
     const [isError, setIsError] = useState(false);
@@ -24,28 +20,24 @@ const JobPostDetails = () => {
             return;
         }
 
-        // 1. LẤY DỮ LIỆU TỪ LOCALSTORAGE
-        const storedUserId = localStorage.getItem("userId");
-        const storedCvId = localStorage.getItem("cvId"); 
-        
-        // Cập nhật cvId vào state nếu có
-        if (storedCvId) {
-            setCvId(storedCvId);
-        }
-
+        const userId = localStorage.getItem("userId");
         const initData = async () => {
             try {
-                // Fetch thông tin chi tiết công việc
+                // 1. Lấy thông tin công việc
                 const jobRes = await fetch(`https://localhost:7272/api/jobs/${id}`);
                 const jobData = await jobRes.json();
                 setJob(jobData);
 
-                // 2. NẾU ĐÃ LOGIN, FETCH TIẾP CANDIDATEID TỪ USERID
-                if (storedUserId) {
-                    const candRes = await fetch(`https://localhost:7272/api/application/candidate/${storedUserId}`);
-                    const candData = await candRes.json();
-                    if (candData.isSuccess) {
-                        setCandidateId(candData.candidateId);
+                // 2. Lấy candidateId dựa trên userId (RIMS logic)
+                if (userId) {
+                    const candRes = await fetch(`https://localhost:7272/api/Application/candidate/${userId}`);
+                    if (candRes.ok) {
+                        const candData = await candRes.json();
+                        if (candData.candidateId) {
+                            setCandidateId(candData.candidateId);
+                            // Lưu vào local để ListAppliedJobs có thể dùng
+                            localStorage.setItem("candidateId", candData.candidateId);
+                        }
                     }
                 }
             } catch (err) {
@@ -58,49 +50,83 @@ const JobPostDetails = () => {
     }, [id]);
 
     const handleApply = async () => {
-        // KIỂM TRA ĐĂNG NHẬP
+        // Kiểm tra đăng nhập
         if (!localStorage.getItem("userId")) {
             showNotify(true, "Vui lòng đăng nhập để thực hiện ứng tuyển!");
             return;
         }
-
-        // KIỂM TRA THÔNG TIN ỨNG VIÊN
         if (!candidateId) {
-            showNotify(true, "Không tìm thấy thông tin ứng viên! Vui lòng cập nhật hồ sơ.");
-            return;
-        }
-
-        // KIỂM TRA CV (Lấy trực tiếp từ localStorage để đảm bảo dữ liệu mới nhất)
-        const currentCvId = localStorage.getItem("cvId") || cvId;
-        if (!currentCvId) {
-            showNotify(true, "Bạn chưa chọn hoặc chưa có CV. Vui lòng tạo CV trước!");
+            showNotify(true, "Không tìm thấy thông tin ứng viên của bạn!");
             return;
         }
 
         setIsApplying(true);
 
-        // PAYLOAD ĐÃ THAY ĐỔI: Dùng cvId động
-        const applyPayload = {
-            jobId: id, 
-            candidateId: candidateId,
-            cvId: currentCvId 
-        };
-
         try {
-            const response = await fetch(`https://localhost:7272/api/application/apply`, {
+            // KIỂM TRA HOẶC TẠO CV TỰ ĐỘNG
+            let currentCvId = localStorage.getItem("cvId");
+
+            if (!currentCvId || currentCvId === "undefined" || currentCvId === "null") {
+                console.log("Đang tạo CV mới bằng FormData [FromForm]...");
+                
+                const cvFormData = new FormData();
+                cvFormData.append("CandidateId", candidateId);
+                
+                // Cần khớp với CreateCvRequestDto ở Backend (Họ tên, Tiêu đề...)
+                cvFormData.append("Title", "Hồ sơ ứng tuyển mặc định");
+                // Giả lập FullName để tránh lỗi Validation "Họ tên không..."
+                cvFormData.append("FullName", "Ứng viên RIMS"); 
+
+                const cvResponse = await fetch(`https://localhost:7272/api/Cvs`, {
+                    method: 'POST',
+                    body: cvFormData 
+                    // Lưu ý: Không set Content-Type header cho FormData
+                });
+
+                // XỬ LÝ LỖI VALIDATION (TRÁNH LỖI Unexpected token 'H')
+                const contentType = cvResponse.headers.get("content-type");
+                let cvResult;
+
+                if (contentType && contentType.includes("application/json")) {
+                    cvResult = await cvResponse.json();
+                } else {
+                    // Nếu Backend trả về text thuần (ví dụ: "Họ tên không được trống")
+                    const errorText = await cvResponse.text();
+                    throw new Error(errorText || "Lỗi dữ liệu đầu vào khi tạo CV.");
+                }
+
+                if (cvResponse.ok && cvResult.id) {
+                    currentCvId = cvResult.id;
+                    localStorage.setItem("cvId", currentCvId);
+                } else {
+                    throw new Error(cvResult.message || "Tạo CV thất bại.");
+                }
+            }
+
+            // THỰC HIỆN ỨNG TUYỂN
+            const applyPayload = {
+                jobId: id, 
+                candidateId: candidateId,
+                cvId: currentCvId
+            };
+
+            const response = await fetch(`https://localhost:7272/api/Application/apply`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(applyPayload)
             });
-            const result = await response.json();
 
+            const result = await response.json();
+            
             if (result.isSuccess) {
                 showNotify(false, result.message || "Ứng tuyển thành công!");
             } else {
                 showNotify(true, result.message || "Ứng tuyển thất bại.");
             }
+
         } catch (err) {
-            showNotify(true, "Lỗi kết nối Server. Vui lòng thử lại sau!");
+            console.error("Lỗi quá trình xử lý:", err);
+            showNotify(true, err.message);
         } finally {
             setIsApplying(false);
         }
@@ -110,7 +136,7 @@ const JobPostDetails = () => {
         setIsError(error);
         setToastMsg(msg);
         setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
+        setTimeout(() => setShowToast(false), 3500);
     };
 
     const formatDate = (dateString) => {
@@ -129,7 +155,6 @@ const JobPostDetails = () => {
 
     return (
         <div className="job-page-wrapper">
-            {/* TOAST NOTIFICATION */}
             {showToast && (
                 <div className={`custom-toast ${isError ? 'toast-error' : ''}`}>
                     <span className="toast-icon">{isError ? '⚠️' : '✅'}</span>
@@ -220,24 +245,22 @@ const JobPostDetails = () => {
                 </div>
             </div>
 
-            {/* NÚT QUAY LẠI */}
             <button 
                 className="floating-back-btn" 
                 title="Quay lại danh sách"
                 onClick={() => navigate('/joblist')}
             >
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#00b14f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
             </button>
 
-            {/* NÚT XEM DANH SÁCH ĐÃ NỘP */}
             <button 
                 className="floating-user-add-btn" 
                 title="Danh sách ứng tuyển"
                 onClick={() => navigate('/applied-jobs')}
             >
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7 12C9.21 12 11 10.21 11 8C11 5.79 9.21 4 7 4C4.79 4 3 5.79 3 8C3 10.21 4.79 12 7 12ZM7 14C4.33 14 0 15.34 0 18V20H14V18C14 15.34 9.67 14 7 14Z" fill="#00b14f"/>
                     <path d="M21 9V6H19V9H16V11H19V14H21V11H24V9H21Z" fill="#00b14f"/>
                 </svg>

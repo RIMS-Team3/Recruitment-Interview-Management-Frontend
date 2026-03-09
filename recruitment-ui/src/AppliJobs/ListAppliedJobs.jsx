@@ -7,27 +7,29 @@ const ListAppliedJobs = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // 1. Lấy candidateId từ localStorage thay vì fix cứng
-    const candidateId = localStorage.getItem('candidateId'); 
-
     useEffect(() => {
-        // 2. Kiểm tra nếu không có candidateId (chưa đăng nhập) thì đẩy về trang login hoặc báo lỗi
-        if (!candidateId) {
-            console.error("Không tìm thấy Candidate ID. Vui lòng đăng nhập.");
-            setLoading(false);
-            // navigate('/login'); // Bạn có thể mở comment này nếu muốn tự động chuyển hướng
+        // 1. Lấy candidateId động từ localStorage
+        const storedCandidateId = localStorage.getItem("candidateId");
+
+        // 2. Kiểm tra đăng nhập/quyền ứng viên
+        if (!storedCandidateId) {
+            alert("Vui lòng đăng nhập với vai trò ứng viên để xem danh sách này!");
+            navigate('/login'); // Hoặc navigate('/') tùy logic của bạn
             return;
         }
-        
-        fetchAppliedJobs();
-    }, [candidateId]); // Chạy lại nếu candidateId thay đổi
 
-    const fetchAppliedJobs = async () => {
+        fetchAppliedJobs(storedCandidateId);
+    }, [navigate]);
+
+    const fetchAppliedJobs = async (candidateId) => {
         try {
-            // API trả về danh sách các công việc ứng viên đã nộp
+            setLoading(true);
             const response = await fetch(`https://localhost:7272/api/ViewListJobApply/candidate/${candidateId}`);
-            if (!response.ok) throw new Error("Lỗi khi tải dữ liệu từ server");
             
+            if (!response.ok) {
+                throw new Error("Không thể kết nối đến máy chủ.");
+            }
+
             const data = await response.json();
             setAppliedList(data);
         } catch (error) {
@@ -66,17 +68,23 @@ const ListAppliedJobs = () => {
     };
 
     if (loading) return <div className="status-loading">Đang tải danh sách hồ sơ...</div>;
-    
-    // 3. Hiển thị thông báo nếu không có dữ liệu hoặc chưa đăng nhập
-    if (!candidateId) return <div className="status-loading">Vui lòng đăng nhập để xem danh sách.</div>;
 
     return (
         <div className="list-applied-page">
             <div className="content-container">
                 <h2 className="main-title">Việc làm đã ứng tuyển</h2>
-                <div className="job-grid">
-                    {appliedList.length > 0 ? (
-                        appliedList.map((item) => {
+                
+                {/* 3. Xử lý UX khi danh sách trống */}
+                {appliedList.length === 0 ? (
+                    <div className="empty-state">
+                        <p>Bạn chưa ứng tuyển công việc nào.</p>
+                        <button className="btn-go-search" onClick={() => navigate('/joblist')}>
+                            Tìm việc ngay
+                        </button>
+                    </div>
+                ) : (
+                    <div className="job-grid">
+                        {appliedList.map((item) => {
                             const status = getStatusDetails(item.status);
                             const targetJobId = item.jobId || item.id || item.idJobPost;
 
@@ -95,7 +103,9 @@ const ListAppliedJobs = () => {
                                     >
                                         <h3 className="job-name">{item.jobTitle}</h3>
                                         <p className="comp-name">{item.companyName}</p>
-                                        <span className="apply-date">Ngày nộp: {new Date(item.appliedAt).toLocaleDateString('vi-VN')}</span>
+                                        <span className="apply-date">
+                                            Ngày nộp: {new Date(item.appliedAt).toLocaleDateString('vi-VN')}
+                                        </span>
                                     </div>
                                     
                                     <div className="job-action-right">
@@ -109,17 +119,17 @@ const ListAppliedJobs = () => {
                                                 handleUnapply(item.applicationId);
                                             }}
                                         >
-                                            <svg viewBox="0 0 24 24" width="16" fill="currentColor" style={{marginRight: '4px'}}><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                            <svg viewBox="0 0 24 24" width="16" fill="currentColor" style={{marginRight: '4px'}}>
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
                                             Xóa
                                         </button>
                                     </div>
                                 </div>
                             );
-                        })
-                    ) : (
-                        <div className="no-data">Bạn chưa ứng tuyển công việc nào.</div>
-                    )}
-                </div>
+                        })}
+                    </div>
+                )}
             </div>
 
             <button 
