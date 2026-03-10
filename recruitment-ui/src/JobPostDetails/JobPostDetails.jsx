@@ -2,20 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom'; 
 import './JobDetails.css';
 
+// Lấy URL từ file .env tương ứng (Vite tự động chọn file .development hoặc .production)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const JobPostDetails = () => {
     const { id } = useParams();
-    const navigate = useNavigate(); // Khởi tạo điều hướng
+    const navigate = useNavigate();
+    
+    // State quản lý dữ liệu
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
     const [candidateId, setCandidateId] = useState(null);
+    const [isApplying, setIsApplying] = useState(false);
 
+    // State quản lý thông báo (Toast)
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState("");
     const [isError, setIsError] = useState(false);
-    const [isApplying, setIsApplying] = useState(false);
 
+    // 1. Khởi tạo dữ liệu khi Load trang
     useEffect(() => {
-        // Kiểm tra ID để tránh lỗi gọi API với giá trị undefined
         if (!id || id === 'undefined') {
             setLoading(false);
             return;
@@ -24,19 +30,24 @@ const JobPostDetails = () => {
         const userId = localStorage.getItem("userId");
         const initData = async () => {
             try {
-                const jobRes = await fetch(`https://localhost:7272/api/jobs/${id}`);
+                // Lấy chi tiết công việc
+                const jobRes = await fetch(`${API_BASE_URL}/jobs/${id}`);
                 const jobData = await jobRes.json();
                 setJob(jobData);
 
+                // Lấy thông tin ứng viên nếu đã đăng nhập
                 if (userId) {
-                    const candRes = await fetch(`https://localhost:7272/api/application/candidate/${userId}`);
-                    const candData = await candRes.json();
-                    if (candData.isSuccess) {
-                        setCandidateId(candData.candidateId);
+                    const candRes = await fetch(`${API_BASE_URL}/Application/candidate/${userId}`);
+                    if (candRes.ok) {
+                        const candData = await candRes.json();
+                        if (candData.candidateId) {
+                            setCandidateId(candData.candidateId);
+                            localStorage.setItem("candidateId", candData.candidateId);
+                        }
                     }
                 }
             } catch (err) {
-                console.error("Lỗi khởi tạo:", err);
+                console.error("Lỗi khởi tạo dữ liệu:", err);
             } finally {
                 setLoading(false);
             }
@@ -44,7 +55,9 @@ const JobPostDetails = () => {
         initData();
     }, [id]);
 
+    // 2. Hàm xử lý Ứng tuyển
     const handleApply = async () => {
+        // Kiểm tra điều kiện trước khi ứng tuyển
         if (!localStorage.getItem("userId")) {
             showNotify(true, "Vui lòng đăng nhập để thực hiện ứng tuyển!");
             return;
@@ -55,36 +68,75 @@ const JobPostDetails = () => {
         }
 
         setIsApplying(true);
-        const applyPayload = {
-            jobId: id, 
-            candidateId: candidateId,
-            cvId: "96185C05-8BAB-4F04-B58D-2B42943B721A" 
-        };
 
         try {
-            const response = await fetch(`https://localhost:7272/api/application/apply`, {
+            // Kiểm tra hoặc tạo CV tự động nếu chưa có
+            let currentCvId = localStorage.getItem("cvId");
+
+            if (!currentCvId || currentCvId === "undefined" || currentCvId === "null") {
+                const cvFormData = new FormData();
+                cvFormData.append("CandidateId", candidateId);
+                cvFormData.append("Title", "Hồ sơ ứng tuyển mặc định");
+                cvFormData.append("FullName", "Ứng viên RIMS"); 
+
+                const cvResponse = await fetch(`${API_BASE_URL}/Cvs`, {
+                    method: 'POST',
+                    body: cvFormData 
+                });
+
+                const contentType = cvResponse.headers.get("content-type");
+                let cvResult;
+
+                if (contentType && contentType.includes("application/json")) {
+                    cvResult = await cvResponse.json();
+                } else {
+                    const errorText = await cvResponse.text();
+                    throw new Error(errorText || "Lỗi khi tạo hồ sơ mặc định.");
+                }
+
+                if (cvResponse.ok && cvResult.id) {
+                    currentCvId = cvResult.id;
+                    localStorage.setItem("cvId", currentCvId);
+                } else {
+                    throw new Error(cvResult.message || "Tạo CV thất bại.");
+                }
+            }
+
+            // Gửi yêu cầu ứng tuyển chính thức
+            const applyPayload = {
+                jobId: id, 
+                candidateId: candidateId,
+                cvId: currentCvId
+            };
+
+            const response = await fetch(`${API_BASE_URL}/Application/apply`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(applyPayload)
             });
+
             const result = await response.json();
+            
             if (result.isSuccess) {
                 showNotify(false, result.message || "Ứng tuyển thành công!");
             } else {
-                showNotify(true, result.message);
+                showNotify(true, result.message || "Bạn đã ứng tuyển công việc này rồi.");
             }
+
         } catch (err) {
-            showNotify(true, "Có lỗi kết nối xảy ra. Vui lòng thử lại sau!");
+            console.error("Lỗi xử lý ứng tuyển:", err);
+            showNotify(true, err.message);
         } finally {
             setIsApplying(false);
         }
     };
 
+    // 3. Các hàm Helper (Định dạng, Thông báo)
     const showNotify = (error, msg) => {
         setIsError(error);
         setToastMsg(msg);
         setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
+        setTimeout(() => setShowToast(false), 3500);
     };
 
     const formatDate = (dateString) => {
@@ -98,11 +150,14 @@ const JobPostDetails = () => {
         return exp ? `${exp} năm kinh nghiệm` : "Chưa cập nhật";
     };
 
+    // Giao diện khi đang tải hoặc lỗi
     if (loading) return <div className="status-msg">Đang tải dữ liệu công việc...</div>;
     if (!job) return <div className="status-msg">Không tìm thấy thông tin công việc.</div>;
 
+    // 4. Giao diện JSX
     return (
         <div className="job-page-wrapper">
+            {/* Toast Notification */}
             {showToast && (
                 <div className={`custom-toast ${isError ? 'toast-error' : ''}`}>
                     <span className="toast-icon">{isError ? '⚠️' : '✅'}</span>
@@ -113,6 +168,7 @@ const JobPostDetails = () => {
                 </div>
             )}
 
+            {/* Breadcrumb */}
             <nav className="job-breadcrumb">
                 <Link to="/">Việc làm</Link> <span>/</span> 
                 <Link to="/joblist">IT Phần mềm</Link> <span>/</span> 
@@ -120,6 +176,7 @@ const JobPostDetails = () => {
             </nav>
 
             <div className="job-container-layout">
+                {/* Cột chính bên trái */}
                 <div className="job-main-column">
                     <div className="job-header-card">
                         <h1 className="job-main-title">{job.title}</h1>
@@ -174,26 +231,33 @@ const JobPostDetails = () => {
                     </div>
                 </div>
 
+                {/* Cột phụ bên phải (Thông tin công ty) */}
                 <div className="job-sidebar-column">
                     <div className="company-card-right">
                         <div className="company-header-flex">
                             <div className="company-logo-img">
-                                {job.company?.logoUrl ? <img src={job.company.logoUrl} alt="logo" /> : "LOGO"}
+                                {job.company?.logoUrl ? (
+                                    <img src={job.company.logoUrl} alt="logo" />
+                                ) : (
+                                    <div className="logo-placeholder">LOGO</div>
+                                )}
                             </div>
                             <div className="company-name-box">
-                                <h4>{job.company?.name}</h4>
+                                <h4>{job.company?.name || "Công ty chưa cập nhật"}</h4>
                                 <span className="pro-label">Pro Company</span>
                             </div>
                         </div>
-                        <p>📍 {job.company?.address}</p>
-                        <a href={`https://${job.company?.website}`} target="_blank" rel="noreferrer" className="view-company-link">
-                            Xem trang công ty ↗
-                        </a>
+                        <p>📍 {job.company?.address || "Địa chỉ đang cập nhật"}</p>
+                        {job.company?.website && (
+                            <a href={`https://${job.company.website}`} target="_blank" rel="noreferrer" className="view-company-link">
+                                Xem trang công ty ↗
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* NÚT THOÁT QUAY LẠI JOBLIST (GÓC DƯỚI BÊN TRÁI) */}
+            {/* Nút điều hướng nổi */}
             <button 
                 className="floating-back-btn" 
                 title="Quay lại danh sách"
@@ -204,7 +268,6 @@ const JobPostDetails = () => {
                 </svg>
             </button>
 
-            {/* NÚT FIXED XEM DANH SÁCH ỨNG TUYỂN (GÓC DƯỚI BÊN PHẢI) */}
             <button 
                 className="floating-user-add-btn" 
                 title="Danh sách ứng tuyển"
