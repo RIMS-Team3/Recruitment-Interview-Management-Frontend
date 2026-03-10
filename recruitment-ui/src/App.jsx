@@ -22,6 +22,9 @@ import EmployerProfile from "./EmployerProfile";
 import UserProfile from "./UserProfile";
 import ListAppliedJobs from './AppliJobs/ListAppliedJobs';
 import { Toaster } from "react-hot-toast";
+import BannerManager from "./Banner/BannerManager";
+
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -220,6 +223,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreateCV />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/banners"
+              element={
+                <ProtectedRoute requiredRole={1}>
+                  <BannerManager />
                 </ProtectedRoute>
               }
             />
