@@ -88,7 +88,7 @@ const ApplicationModal = ({ show, handleClose, application }) => {
     if (!cvId) {
       toast.error("Ứng viên chưa tạo CV");
       return;
-    }
+    } 
 
     const url = `/cv-preview/${cvId}`;
 
