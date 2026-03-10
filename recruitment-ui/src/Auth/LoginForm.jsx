@@ -49,6 +49,16 @@ const LoginForm = () => {
         return;
       }
 
+    // 🔥 ĐIỀU HƯỚNG: Role 0 là chưa chọn vai trò
+    if (data.role === 0) {
+      navigate("/select-role");
+    } else if (data.role === 1) {
+        navigate("/admin/dashboard"); // Admin -> Dashboardelse {
+      navigate("/");
+    }
+  } catch (err) {
+    console.error("Google login error:", err);
+      alert("Không thể kết nối server");
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("email", data.email);
       localStorage.setItem("fullName", data.fullName);
@@ -71,10 +81,10 @@ const LoginForm = () => {
         navigate("/");
       }
 
-    } catch (err) {
-      console.error("Google login error:", err);
-      toast.error("Không thể kết nối server", { id: toastId });
-    }
+    } //catch (err) {
+      //console.error("Google login error:", err);
+     // toast.error("Không thể kết nối server", { id: toastId });
+    //}
   }
 
   useEffect(() => {
