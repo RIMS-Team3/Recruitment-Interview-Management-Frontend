@@ -24,7 +24,7 @@ import ListAppliedJobs from './AppliJobs/ListAppliedJobs';
 import { Toaster } from "react-hot-toast";
 import BannerManager from "./Banner/BannerManager";
 import CVViewer from "./CVs/CVViewer";
-
+import AdvertisementManager from "./Advertisement/AdvertisementManager";
 
 
 const Navbar = () => {
@@ -65,6 +65,14 @@ const Navbar = () => {
           <li onClick={() => navigate("/admin/dashboard")} style={{ cursor: "pointer", fontWeight: "bold", color: "blue" }}>
       Quản trị hệ thống
     </li>
+          
+          {/* MỤC QUẢNG CÁO CHỈ HIỆN CHO ADMIN (ROLE = 1) */}
+          {user && String(user.role) === "1" && (
+            <li onClick={() => navigate("/admin/advertisements")} style={{ cursor: "pointer", fontWeight: "bold", color: "blue" }}>
+              Quảng Cáo
+            </li>
+          )}
+
           <li>Việc làm</li>
           <li
             onClick={handleProfileClick}
@@ -245,6 +253,14 @@ function App() {
                 <ProtectedRoute requiredRole={3}>
                   <CVViewer />
 
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/advertisements"
+              element={
+                <ProtectedRoute requiredRole={1}>
+                  <AdvertisementManager />
                 </ProtectedRoute>
               }
             />
