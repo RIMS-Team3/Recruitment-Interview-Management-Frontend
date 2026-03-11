@@ -130,13 +130,51 @@ body {
 .popup-ad-content.grid-3, .popup-ad-content.grid-4 { grid-template-columns: repeat(2, 1fr); }
 
 .popup-ad-link {
-  display: block; border-radius: 12px; overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: transform 0.2s; background-color: #000;
+  position: relative;
+  display: block; 
+  border-radius: 14px; 
+  overflow: hidden;
+  padding: 4px; /* Độ dày viền LED */
+  background-color: #0b1320; 
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 20px rgba(255, 0, 255, 0.3);
+  transition: transform 0.2s;
+  z-index: 1;
 }
-.popup-ad-link:hover { transform: scale(1.02); }
+
+/* Dải màu LED rực rỡ xoay phía sau */
+.popup-ad-link::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(
+    transparent, 
+    transparent, 
+    transparent, 
+    #ff00ff, /* Hồng Neon */
+    #00ffff, /* Xanh Cyan */
+    #00ff00, /* Xanh lá */
+    #ff0000, /* Đỏ */
+    #ffff00  /* Vàng */
+  );
+  animation: rotateLed 1s linear infinite; /* Tốc độ quay của Popup ở giữa màn hình */
+  z-index: -1;
+}
+
+.popup-ad-link:hover { 
+  transform: scale(1.02); 
+}
+
+.popup-ad-link:hover::before {
+  animation-duration: 0.4s; /* Xoay tít mù khi hover */
+}
 
 .popup-ad-img {
+  position: relative;
+  z-index: 2;
   width: 100%; height: 100%; max-height: 40vh; object-fit: contain; display: block;
+  border-radius: 10px;
+  background-color: #000;
 }
 
 .close-popup-ad-btn {
@@ -153,28 +191,27 @@ body {
 ========================================= */
 .floating-sidebar {
   position: fixed;
-  top: 140px; /* Bắt đầu từ dưới header */
+  top: 140px;
   z-index: 9000;
-  width: 220px; /* CỐ ĐỊNH CHIỀU RỘNG: Đảm bảo mọi ảnh đều to bằng nhau */
+  width: 220px;
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Khoảng cách giữa các ảnh trong 1 cột */
-  pointer-events: none; /* Tránh block màn hình khi click ra khoảng không */
+  gap: 20px;
+  pointer-events: none;
   max-height: calc(100vh - 160px);
-  overflow-y: auto; /* Cho phép cuộn mượt mà nếu quảng cáo dài quá màn hình */
+  overflow-y: auto;
   padding-bottom: 20px;
 }
-/* Ẩn scrollbar cho đẹp */
 .floating-sidebar::-webkit-scrollbar { width: 0px; background: transparent; }
 
 .left-sidebar { left: 20px; }
 .right-sidebar { right: 20px; }
 
 .floating-ad-item {
-  pointer-events: auto; /* Kích hoạt lại click cho từng ảnh */
+  pointer-events: auto;
   position: relative;
   width: 100%; 
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
   animation: floatAd 4s ease-in-out infinite;
   transition: transform 0.3s ease;
@@ -185,15 +222,50 @@ body {
   transform: scale(1.03);
 }
 
-.floating-ad-img {
-  width: 100%;
-  height: auto; /* CHIỀU CAO TỰ ĐỘNG: Phù hợp với mọi size ảnh */
+.floating-ad-item a {
+  position: relative;
   display: block;
-  border-radius: 12px;
-  border: 2px solid white; 
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 4px;
+  background-color: #0b1320;
+  z-index: 1;
 }
 
-/* Nút X tắt TỪNG quảng cáo lơ lửng */
+.floating-ad-item a::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(
+    transparent, 
+    transparent, 
+    transparent, 
+    #ff00ff, 
+    #00ffff, 
+    #00ff00, 
+    #ff0000, 
+    #ffff00
+  );
+  animation: rotateLed 1s linear infinite; /* Tốc độ quay của Quảng cáo ở 2 bên Sidebar */
+  z-index: -1;
+}
+
+/* Các ảnh xoay ngược chiều nhau */
+.floating-ad-item:nth-child(even) a::before {
+  animation-direction: reverse;
+}
+
+.floating-ad-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  background-color: #000;
+}
+
 .close-single-ad-btn {
   position: absolute; top: -10px; right: -10px; background-color: #4b5563; color: white;
   border: 2px solid white; border-radius: 50%; width: 24px; height: 24px;
@@ -202,9 +274,8 @@ body {
 }
 .close-single-ad-btn:hover { background-color: #ef4444; transform: scale(1.1); }
 
-/* Cho các ảnh bay lệch nhịp nhau */
-.floating-ad-item:nth-child(odd) { animation-delay: 0s; }
-.floating-ad-item:nth-child(even) { animation-delay: 1.5s; }
+.floating-ad-item:nth-child(odd) { animation: floatAd 4s ease-in-out infinite 0s; }
+.floating-ad-item:nth-child(even) { animation: floatAd 4s ease-in-out infinite 1.5s; }
 
 @keyframes floatAd {
   0% { transform: translateY(0); }
@@ -214,13 +285,10 @@ body {
 
 @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes rotateLed { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* Trên thiết bị di động */
 @media (max-width: 992px) {
-  /* Tự động ẩn 2 cột quảng cáo nổi đi để người dùng mobile dễ xem web */
   .floating-sidebar { display: none; }
-  
-  /* Cấu hình lại Popup cho Mobile */
   .popup-ad-content.grid-2, .popup-ad-content.grid-3, .popup-ad-content.grid-4 {
     grid-template-columns: 1fr; max-height: 80vh; overflow-y: auto;
   }

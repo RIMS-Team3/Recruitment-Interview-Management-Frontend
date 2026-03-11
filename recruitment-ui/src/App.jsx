@@ -65,6 +65,14 @@ const Navbar = () => {
           <li onClick={() => navigate("/admin/dashboard")} style={{ cursor: "pointer", fontWeight: "bold", color: "blue" }}>
       Quản trị hệ thống
     </li>
+          
+          {/* MỤC QUẢNG CÁO CHỈ HIỆN CHO ADMIN (ROLE = 1) */}
+          {user && String(user.role) === "1" && (
+            <li onClick={() => navigate("/admin/advertisements")} style={{ cursor: "pointer", fontWeight: "bold", color: "blue" }}>
+              Quảng Cáo
+            </li>
+          )}
+
           <li>Việc làm</li>
           <li
             onClick={handleProfileClick}

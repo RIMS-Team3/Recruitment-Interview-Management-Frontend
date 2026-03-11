@@ -57,7 +57,7 @@ const HomePage = () => {
   // LẤY ROLE CỦA USER HIỆN TẠI
   const userRole = localStorage.getItem("role");
 
-  // CALL API
+ // CALL API
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -84,13 +84,26 @@ const HomePage = () => {
           const adsData = await adsRes.json();
           const validAds = adsData || [];
           
-          // 1. Popup lấy tối đa 4 cái đầu tiên
-          setPopupAds(validAds.slice(0, 4));
-          if (validAds.length > 0) setShowPopup(true);
+          // 1. Lọc ra danh sách quảng cáo dành riêng cho Popup (Lấy tối đa 4 cái)
+          const popupAdList = validAds.filter(ad => ad.isPopup);
+          setPopupAds(popupAdList.slice(0, 4));
+          
+          if (popupAdList.length > 0) {
+            // Kiểm tra xem session đã lưu cờ 'hasSeenPopup' chưa
+            const hasSeenPopup = sessionStorage.getItem("hasSeenPopup");
+            
+            // Nếu chưa có (nghĩa là mới vào web) thì mới hiện
+            if (!hasSeenPopup) {
+              setShowPopup(true);
+              // Lưu lại cờ để lần sau quay lại không hiện nữa
+              sessionStorage.setItem("hasSeenPopup", "true"); 
+            }
+          }
 
-          // 2. Chia đều quảng cáo sang 2 cột trái phải (Grid dọc)
-          setLeftAds(validAds.filter((_, i) => i % 2 === 0)); // Các ảnh chẵn sang trái
-          setRightAds(validAds.filter((_, i) => i % 2 !== 0)); // Các ảnh lẻ sang phải
+          // 2. Lọc ra danh sách quảng cáo dành cho 2 bên đảo (Những cái KHÔNG phải Popup)
+          const floatingAdList = validAds.filter(ad => !ad.isPopup);
+          setLeftAds(floatingAdList.filter((_, i) => i % 2 === 0)); // Các ảnh chẵn sang trái
+          setRightAds(floatingAdList.filter((_, i) => i % 2 !== 0)); // Các ảnh lẻ sang phải
         }
 
       } catch (error) {
