@@ -305,7 +305,7 @@ const JobList = () => {
 
             {/* Nút mới: Danh sách ứng tuyển (Người dấu cộng) */}
             <button 
-    className="floating-applied-list" 
+    className="floating-user-add-btn" 
     title="Danh sách ứng tuyển"
     onClick={() => navigate('/applied-jobs')}
 >
