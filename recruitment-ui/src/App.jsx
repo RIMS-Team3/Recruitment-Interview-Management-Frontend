@@ -30,6 +30,7 @@ import ServicePackage from './ServicePackage/ServicePackage';
 import EmployerServicePackages from './ServicePackage/EmployerServicePackages';
 import ServicePackageCheckout from './ServicePackage/ServicePackageCheckout';
 import EmployerOrders from './Orders/EmployerOrders';
+import OrderDetail from './Orders/OrderDetail';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -333,6 +334,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route 
+            path="/order-details/:id" 
+            element={<OrderDetail />} />
 
           </Routes>
         </main>
