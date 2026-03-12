@@ -43,6 +43,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setUser } = useContext(AuthContext);
+  
   const handleProfileClick = () => {
     const role = localStorage.getItem("role");
 
@@ -56,6 +57,7 @@ const Navbar = () => {
       navigate("/login");
     }
   };
+  
   const hideNavbarPaths = ["/login"];
 
   if (hideNavbarPaths.includes(location.pathname)) {
@@ -107,7 +109,7 @@ const Navbar = () => {
                   fontWeight: "bold",
                 }}
               >
-                Dịch Vụ
+                Mua Dịch Vụ
               </li>
               <li
                 className={location.pathname === "/employer/orders" ? "active" : ""}
@@ -117,7 +119,7 @@ const Navbar = () => {
                   fontWeight: "bold",
                 }}
               >
-                Hóa đơn
+                Lịch sử giao dịch
               </li>
               <li
                 className={location.pathname === "/employer/manage-jobs" ? "active" : ""}
@@ -139,7 +141,26 @@ const Navbar = () => {
             </li>
           )}
 
-          <li>Cẩm nang</li>
+          <li style={{ cursor: "pointer" }}>Cẩm nang</li>
+          
+          {/* Đã thêm link và active class cho nút Việc làm */}
+          <li 
+            className={location.pathname === "/joblist" ? "active" : ""}
+            onClick={() => navigate("/joblist")}
+            style={{ cursor: "pointer" }}
+          >
+            Việc làm
+          </li>
+
+          {user && String(user.role) === "3" && (
+            <li
+              className={location.pathname === "/employer/manage-jobs" ? "active" : ""}
+              onClick={() => navigate("/employer/manage-jobs")}
+              style={{ cursor: "pointer", fontWeight: "bold" }}
+            >
+              Đăng tin
+            </li>
+          )}
         </ul>
 
         <div className="nav-auth">
