@@ -50,7 +50,7 @@ const TaiXiuGame = () => {
                 isSystem: true 
             };
             setMessages(prev => [...prev, systemMsg].slice(-50));
-        }, 6000);
+        }, 10000);
         return () => clearInterval(warningInterval);
     }, []);
 
