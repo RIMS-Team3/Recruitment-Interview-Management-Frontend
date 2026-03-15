@@ -1,10 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 :root {
   --primary-color: #0066ff;
   --success-color: #10b981;
   --bg-color: #050509;
-  --text-dark: #e2e8f0;
   --text-gray: #a0aec0;
   --border-color: #2d3748;
   --card-bg: #111119;
@@ -18,196 +15,81 @@
   position: relative; overflow: hidden;
 }
 
-/* --- HIỆU ỨNG SAO BĂNG --- */
-.star-container {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-}
-
+/* --- SAO BĂNG (Giữ nguyên từ code cũ của bạn) --- */
+.star-container { position: absolute; inset: 0; }
 .shooting-star {
-  position: absolute;
-  top: 0; right: 0;
-  width: 2px; height: 2px;
+  position: absolute; top: 0; right: 0; width: 2px; height: 2px;
   background: linear-gradient(90deg, #fff, transparent);
-  border-radius: 50%;
-  opacity: 0;
-  filter: drop-shadow(0 0 6px #fff);
-  animation: star-animation 4s linear infinite;
+  border-radius: 50%; opacity: 0; animation: star-animation 4s linear infinite;
 }
-
 .shooting-star::before {
-  content: '';
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 150px; height: 1px;
-  background: linear-gradient(90deg, #fff, transparent);
+  content: ''; position: absolute; top: 50%; transform: translateY(-50%);
+  width: 150px; height: 1px; background: linear-gradient(90deg, #fff, transparent);
 }
-
 @keyframes star-animation {
   0% { transform: rotate(315deg) translateX(0); opacity: 0; }
   10% { opacity: 1; }
-  80% { opacity: 1; }
   100% { transform: rotate(315deg) translateX(-1500px); opacity: 0; }
 }
-
 .shooting-star:nth-child(1) { top: 0%; right: 10%; animation-delay: 0s; }
-.shooting-star:nth-child(2) { top: 10%; right: 40%; animation-delay: 1s; animation-duration: 3s; }
+.shooting-star:nth-child(2) { top: 10%; right: 40%; animation-delay: 1s; }
 .shooting-star:nth-child(3) { top: 20%; right: -5%; animation-delay: 2s; }
-.shooting-star:nth-child(4) { top: 5%; right: 70%; animation-delay: 3.5s; animation-duration: 5s; }
-.shooting-star:nth-child(5) { top: 40%; right: -10%; animation-delay: 1.5s; }
-.shooting-star:nth-child(6) { top: 0%; right: 25%; animation-delay: 2.2s; }
 
-/* --- THÔNG BÁO THÀNH CÔNG --- */
-.success-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(10px);
-  display: flex; justify-content: center; align-items: center;
-  z-index: 1000;
-}
-
-.success-card {
-  background: #1a1a24; padding: 50px; border-radius: 30px;
-  text-align: center; border: 1px solid var(--success-color);
-  box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
-  transform: scale(0.8);
-  animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-.checkmark-wrapper {
-  margin-bottom: 25px; display: flex; justify-content: center;
-}
-
-.checkmark-circle {
-  width: 90px; height: 90px; background: var(--success-color);
-  border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; animation: pulseSuccess 2s infinite;
-  box-shadow: 0 0 20px var(--success-color);
-}
-
-.success-card h2 { color: white; margin: 10px 0; font-size: 26px; }
-.success-card p { color: var(--text-gray); }
-
-.done-btn {
-  margin-top: 30px; padding: 12px 40px; background: var(--success-color);
-  color: white; border: none; border-radius: 12px;
-  font-weight: 700; cursor: pointer; transition: 0.3s;
-}
-.done-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-
-@keyframes popUp { to { transform: scale(1); } }
-@keyframes pulseSuccess {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  70% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-/* --- TRANG TRÍ CARD CHÍNH --- */
-.deposit-card {
-  background: var(--card-bg); width: 100%; max-width: 950px;
+/* --- CARD STYLE --- */
+.gift-card-only {
+  background: var(--card-bg);
+  width: 100%; max-width: 480px;
   border-radius: 28px; border: 1px solid var(--border-color);
   z-index: 10; overflow: hidden;
   box-shadow: 0 30px 80px rgba(0,0,0,0.6);
 }
 
 .deposit-header {
-  padding: 30px 40px; border-bottom: 1px solid var(--border-color);
+  padding: 25px 30px; border-bottom: 1px solid var(--border-color);
   display: flex; justify-content: space-between; align-items: center;
   background: linear-gradient(to right, #111119, #1a1a2e);
 }
 
-.deposit-header h1 { font-size: 24px; color: white; margin: 0; }
-.subtitle { color: var(--text-gray); font-size: 13px; margin: 5px 0 0; }
+.deposit-header h1 { font-size: 20px; color: white; margin: 0; }
+.subtitle { color: var(--text-gray); font-size: 12px; margin-top: 4px; }
 .user-badge {
   background: rgba(0, 102, 255, 0.1); color: var(--primary-color);
-  padding: 6px 18px; border-radius: 20px; font-weight: 700;
+  padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px;
   border: 1px solid var(--primary-color);
 }
 
-.deposit-body { display: flex; padding: 40px; gap: 50px; }
-.deposit-column { flex: 1; display: flex; flex-direction: column; }
+.gift-body-centered { padding: 30px; }
 
-.input-label { color: var(--text-dark); margin-bottom: 12px; font-weight: 500; }
-.amount-input {
-  width: 100%; padding: 18px; font-size: 22px; font-weight: 700;
+.input-label { color: #e2e8f0; display: block; margin-bottom: 12px; font-weight: 500; }
+.gift-input-field {
+  width: 100%; padding: 18px; font-size: 20px; font-weight: 700;
   background: #000; border: 2px solid var(--border-color);
-  border-radius: 15px; color: white; transition: 0.3s;
+  border-radius: 15px; color: white; text-align: center;
+  letter-spacing: 1px; transition: 0.3s;
 }
-.amount-input:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 15px rgba(0, 102, 255, 0.2); }
-
-.quick-amounts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
-.amount-chip {
-  padding: 12px; background: #1a1a2e; color: var(--text-gray);
-  border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: 0.2s;
-}
-.amount-chip:hover { background: #252545; }
-.amount-chip.active { background: var(--primary-color); color: white; font-weight: 600; }
+.gift-input-field:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 15px rgba(0, 102, 255, 0.2); }
 
 .submit-button {
-  width: 100%; padding: 18px; background: var(--primary-color);
+  width: 100%; padding: 16px; background: var(--primary-color);
   color: white; border: none; border-radius: 15px; font-weight: 700;
-  margin-top: 25px; cursor: pointer; transition: 0.3s; font-size: 16px;
+  margin-top: 20px; cursor: pointer; transition: 0.3s; font-size: 16px;
 }
-.submit-button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3); }
+.submit-button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3); }
 
-.guide-box { margin-top: 25px; background: #0a0a14; padding: 20px; border-radius: 15px; color: var(--text-gray); font-size: 13px; line-height: 1.6; }
-
-.qr-preview-box {
-  background: #000; min-height: 320px; border-radius: 24px;
-  display: flex; justify-content: center; align-items: center;
-  border: 1px dashed var(--border-color);
+.gift-status-msg {
+  margin-top: 20px; padding: 12px; border-radius: 10px; text-align: center; font-size: 14px;
 }
+.gift-status-msg.ok { background: rgba(16, 185, 129, 0.1); color: var(--success-color); border: 1px solid var(--success-color); }
+.gift-status-msg.err { background: rgba(255, 75, 75, 0.1); color: #ff4b4b; border: 1px solid #ff4b4b; }
 
-.qr-wrapper { background: white; padding: 15px; border-radius: 18px; margin-bottom: 15px; }
-.qr-placeholder { text-align: center; color: var(--text-gray); }
-.empty-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.guide-box { margin-top: 25px; background: #0a0a14; padding: 20px; border-radius: 15px; color: var(--text-gray); font-size: 12px; line-height: 1.6; }
 
-.giftcode-section {
-  margin-top: 30px; background: #1a1a2e; padding: 22px;
-  border-radius: 20px; border-left: 5px solid var(--primary-color);
-}
-.gift-title { color: white; font-size: 15px; margin: 0 0 15px; }
-.giftcode-input-group { display: flex; gap: 10px; }
-.giftcode-input { flex: 1; background: #050509; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; color: white; }
-.giftcode-apply-btn { background: var(--primary-color); color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-
-.gift-msg { font-size: 12px; margin-top: 8px; }
-.gift-msg.ok { color: var(--success-color); }
-.gift-msg.err { color: #ff6b6b; }
-
-/* --- FOOTER MARQUEE CHỮ CHẠY --- */
+/* FOOTER MARQUEE */
 .footer-marquee { 
-  position: fixed; 
-  bottom: 0; 
-  left: 0;
-  width: 100%; 
-  background: #000; 
-  height: 35px; 
-  display: flex; 
-  align-items: center; 
-  border-top: 1px solid var(--border-color); 
-  overflow: hidden;
-  z-index: 100;
+  position: fixed; bottom: 0; left: 0; width: 100%; background: #000; 
+  height: 35px; display: flex; align-items: center; border-top: 1px solid var(--border-color); overflow: hidden;
 }
-.marquee-inner { 
-  display: flex; 
-  white-space: nowrap;
-  animation: scroll-left 1000s linear infinite; 
-}
-.marquee-text { 
-  padding-left: 100vw; /* Bắt đầu chạy từ ngoài lề phải màn hình */
-  color: var(--text-gray); 
-  font-size: 11px; 
-  text-transform: uppercase; 
-  letter-spacing: 1px; 
-}
+.marquee-inner { display: flex; animation: scroll-left 30s linear infinite; }
+.marquee-text { white-space: nowrap; padding-left: 100vw; color: var(--text-gray); font-size: 11px; text-transform: uppercase; }
 
-@keyframes scroll-left { 
-  0% { transform: translateX(0); } 
-  100% { transform: translateX(-100%); } 
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.animate-fade-in { animation: fadeIn 0.5s ease; }
-
-@media (max-width: 768px) {
-  .deposit-body { flex-direction: column; padding: 25px; gap: 30px; }
-  .deposit-card { border-radius: 0; height: 100%; border: none; }
-}
+@keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }

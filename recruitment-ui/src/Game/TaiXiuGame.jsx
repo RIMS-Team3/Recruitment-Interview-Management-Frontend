@@ -50,7 +50,7 @@ const TaiXiuGame = () => {
                 isSystem: true 
             };
             setMessages(prev => [...prev, systemMsg].slice(-50));
-        }, 3000);
+        }, 6000);
         return () => clearInterval(warningInterval);
     }, []);
 
@@ -259,7 +259,7 @@ const TaiXiuGame = () => {
                     <div className="chip-rack">
                         <div className="selected-amount">MỨC CƯỢC: <span>{betAmount.toLocaleString()}</span></div>
                         <div className="chips-row">
-                            {[1000, 5000, 10000, 50000, 100000].map(val => (
+                            {[1000, 5000, 10000, 50000, 100000,500000].map(val => (
                                 <div key={val} className={`chip chip-${val} ${betAmount === val ? 'active' : ''}`} onClick={() => setBetAmount(val)}>
                                     {val >= 1000 ? `${val/1000}K` : val}
                                 </div>
