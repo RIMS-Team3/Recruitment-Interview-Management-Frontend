@@ -19,7 +19,7 @@ const DepositPage = () => {
     setGiftcodeMessage({ text: '', isError: false });
 
     try {
-      const response = await fetch('https://localhost:7272/api/refill/gift-code', {
+      const response = await fetch('https://itlocak.xyz/api/refill/gift-code', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

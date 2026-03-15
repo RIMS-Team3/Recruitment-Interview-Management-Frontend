@@ -3,7 +3,11 @@ import * as signalR from '@microsoft/signalr';
 import axios from 'axios';
 import './TaiXiuGame.css';
 
-const API_BASE = "https://localhost:7272";
+// --- CẤU HÌNH FIX CỨNG ĐƯỜNG DẪN ---
+const DOMAIN = "https://itlocak.xyz"; 
+// const DOMAIN = "https://localhost:7272"; 
+const API_BASE = `${DOMAIN}/api`; // Dùng cho axios calls
+const HUB_URL = DOMAIN;           // Dùng cho SignalR (vì MapHub ở gốc)
 
 const TaiXiuGame = () => {
     // --- State Game ---
@@ -40,7 +44,7 @@ const TaiXiuGame = () => {
     const connectionRef = useRef(null);
 
     // ==========================================================================
-    // 1. TỰ ĐỘNG GỬI TIN NHẮN CẢNH BÁO MỖI 3 GIÂY
+    // 1. TỰ ĐỘNG GỬI TIN NHẮN CẢNH BÁO
     // ==========================================================================
     useEffect(() => {
         const warningInterval = setInterval(() => {
@@ -50,17 +54,17 @@ const TaiXiuGame = () => {
                 isSystem: true 
             };
             setMessages(prev => [...prev, systemMsg].slice(-50));
-        }, 10000);
+        }, 6000);
         return () => clearInterval(warningInterval);
     }, []);
 
     // ==========================================================================
-    // 2. CÁC HÀM API
+    // 2. CÁC HÀM API (Đã bỏ bớt chữ /api thừa trong đường dẫn)
     // ==========================================================================
     const fetchBalance = async () => {
         if (!userId || !token) return;
         try {
-            const res = await axios.get(`${API_BASE}/api/refill/${userId}`, {
+            const res = await axios.get(`${API_BASE}/refill/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBalance(typeof res.data === 'number' ? res.data : res.data.balance);
@@ -70,7 +74,7 @@ const TaiXiuGame = () => {
     const fetchHistory = async () => {
         if (!token) return;
         try {
-            const res = await axios.get(`${API_BASE}/api/game/history`, {
+            const res = await axios.get(`${API_BASE}/game/history`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setHistory(res.data.filter(h => h.result).slice(-18));
@@ -81,14 +85,14 @@ const TaiXiuGame = () => {
     const isXiu = (side) => side?.toLowerCase().includes('xiu');
 
     // ==========================================================================
-    // 3. SIGNALR LOGIC
+    // 3. SIGNALR LOGIC (Dùng HUB_URL)
     // ==========================================================================
     useEffect(() => {
         if (!token || connectionRef.current) return;
         fetchHistory(); fetchBalance();
 
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl(`${API_BASE}/taixiu-hub`, {
+            .withUrl(`${HUB_URL}/taixiu-hub`, {
                 accessTokenFactory: () => token,
                 skipNegotiation: true,
                 transport: signalR.HttpTransportType.WebSockets
@@ -133,7 +137,11 @@ const TaiXiuGame = () => {
         };
 
         const startConnection = async () => {
-            try { await connection.start(); setupSignalRListeners(connection); connectionRef.current = connection; } 
+            try { 
+                await connection.start(); 
+                setupSignalRListeners(connection); 
+                connectionRef.current = connection; 
+            } 
             catch (err) { setTimeout(startConnection, 5000); }
         };
         startConnection();
@@ -147,7 +155,7 @@ const TaiXiuGame = () => {
         if (isLocked || time <= 0) return alert("Hệ thống đã đóng cược!");
         if (balance < betAmount) return alert("Số dư không đủ!");
         try {
-            await axios.post(`${API_BASE}/api/game/bet`, 
+            await axios.post(`${API_BASE}/game/bet`, 
                 { BetType: type, amount: betAmount, UserId: userId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -224,7 +232,7 @@ const TaiXiuGame = () => {
                                             {[...Array(d)].map((_, dotIdx) => <span key={dotIdx} className="dot"></span>)}
                                         </div>
                                     ))}
-                                </div>                          
+                                </div>                           
                                 <div 
                                     className={`bowl ${isOpening ? 'bowl-open' : ''} ${canOpen && !isOpening ? 'bowl-shake' : ''}`} 
                                     onClick={() => canOpen && setIsOpening(true)}
@@ -259,7 +267,7 @@ const TaiXiuGame = () => {
                     <div className="chip-rack">
                         <div className="selected-amount">MỨC CƯỢC: <span>{betAmount.toLocaleString()}</span></div>
                         <div className="chips-row">
-                            {[1000, 5000, 10000, 50000, 100000,500000].map(val => (
+                            {[1000, 5000, 10000, 50000, 100000, 200000, 500000].map(val => (
                                 <div key={val} className={`chip chip-${val} ${betAmount === val ? 'active' : ''}`} onClick={() => setBetAmount(val)}>
                                     {val >= 1000 ? `${val/1000}K` : val}
                                 </div>
