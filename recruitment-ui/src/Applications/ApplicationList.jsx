@@ -76,7 +76,7 @@ const ApplicationList = () => {
         <div className="app-header">
           <div className="header-left">
             <div className="title-group">
-              <Sparkles size={28} color="#6366f1" fill="#6366f1" />
+              <Sparkles size={28} className="header-icon-sparkle" />
               <h2>Quản lý hồ sơ ứng tuyển</h2>
             </div>
             <div className="waiting-count">
