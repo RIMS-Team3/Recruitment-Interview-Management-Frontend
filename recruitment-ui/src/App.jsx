@@ -52,27 +52,52 @@ const Navbar = () => {
   const { user, setUser } = useContext(AuthContext);
   const [balance, setBalance] = useState(0);
 
-  // 1. Logic fetch số dư từ API
+  // 1. LOGIC FETCH SỐ DƯ VÀ CHECK VIP TỰ ĐỘNG MỌI LÚC MỌI NƠI
   useEffect(() => {
-    const fetchBalance = async () => {
+    let isMounted = true;
+
+    const fetchGlobalData = async () => {
       const userId = localStorage.getItem("userId");
-      if (user && userId) {
-        try {
-          // Gọi API theo đúng endpoint bạn cung cấp
-          const response = await axios.get(`https://itlocak.xyz/api/refill/${userId}`);
-          
-          // Kiểm tra cấu trúc dữ liệu trả về (giả định trả về số hoặc object {amount: ...})
-          const amount = typeof response.data === 'number' ? response.data : (response.data.amount || 0);
+      const token = localStorage.getItem("accessToken");
+      const role = localStorage.getItem("role");
+
+      if (!userId) return;
+
+      try {
+        // A. Lấy Số Dư
+        const resBalance = await axios.get(`https://itlocak.xyz/api/refill/${userId}`);
+        if (isMounted) {
+          const amount = typeof resBalance.data === 'number' ? resBalance.data : (resBalance.data.amount || 0);
           setBalance(amount);
-        } catch (error) {
-          console.error("Lỗi khi lấy số dư:", error);
-          setBalance(0);
         }
+
+        // B. Lấy thông tin Profile để ép Navbar Đen Vàng (Nếu là Ứng viên)
+        if (String(role) === "2" && token) {
+          const resProfile = await axios.get(`https://localhost:7272/api/candidateprofiles/user/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (isMounted && resProfile.data && resProfile.data.isCvPro !== undefined) {
+            // Nếu Backend báo là VIP nhưng Context của React chưa kịp cập nhật
+            if (user && resProfile.data.isCvPro !== user.isCvPro) {
+              const updatedUser = { ...user, isCvPro: resProfile.data.isCvPro };
+              setUser(updatedUser); // Kích hoạt đổi màu Navbar
+              localStorage.setItem("user", JSON.stringify(updatedUser)); // Lưu lại để F5 không mất
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi lấy dữ liệu toàn cục:", error);
       }
     };
 
-    fetchBalance();
-  }, [user, location.pathname]); // Cập nhật lại khi user thay đổi hoặc khi chuyển trang
+    fetchGlobalData();
+
+    return () => {
+      isMounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, user?.id]); // Chạy lại mỗi khi chuyển trang hoặc user vừa load xong
 
   const handleProfileClick = () => {
     const role = localStorage.getItem("role");
@@ -100,11 +125,12 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="main-navbar">
+    <nav className={`main-navbar ${user?.isCvPro ? 'navbar-pro' : ''}`}>
       <div className="nav-content">
         <Link to="/" className="logo-text">
           <div className="navbar-logo-box">T</div>
-          IT LOCAK
+          <span className="logo-main-text">IT LOCAK</span>
+          {user?.isCvPro && <span className="logo-pro-text">Pro</span>}
         </Link>
 
         <ul className="nav-menu">
@@ -144,13 +170,18 @@ const Navbar = () => {
               <li className={location.pathname === "/candidate/orders" ? "active" : ""} onClick={() => navigate("/candidate/orders")}>
                 Lịch sử giao dịch
               </li>
-              {/* NÚT NÂNG CẤP NGAY ĐÃ ĐƯỢC LÀM GỌN */}
-              <li 
-                onClick={() => navigate('/upgrade-cv-pro')}
-                className="btn-upgrade-nav"
-              >
-                ⭐ Nâng cấp ngay
-              </li>
+              {!user?.isCvPro ? (
+                <li 
+                  onClick={() => navigate('/upgrade-cv-pro')}
+                  className="btn-upgrade-nav"
+                >
+                  ⭐ Nâng cấp ngay
+                </li>
+              ) : (
+                <li className="badge-vip-nav" title="Bạn đang sở hữu gói CV Pro">
+                  IT LOCAK Pro
+                </li>
+              )}
             </>
           )}
 
@@ -179,7 +210,7 @@ const Navbar = () => {
               <li 
                 className={location.pathname === "/naptien" ? "active" : ""} 
                 onClick={() => navigate("/naptien")}
-                style={{ color: "#10b981", fontWeight: "bold" }}
+                style={{ color: user?.isCvPro ? "#f3c246" : "#10b981", fontWeight: "bold" }}
               >
                 Gift Code
               </li>
@@ -196,13 +227,13 @@ const Navbar = () => {
           {user ? (
             <>
               <div
-                className="user-profile-nav blue-theme"
+                className={`user-profile-nav ${user?.isCvPro ? 'vip-theme' : 'blue-theme'}`}
                 onClick={() => {
                   if (user.role === 2) navigate("/candidate-profile"); 
                   else if (user.role === 3) navigate("/employer-profile"); 
                 }}
               >
-                <div className="nav-avatar">
+                <div className={`nav-avatar ${user?.isCvPro ? 'vip-avatar' : ''}`}>
                   {user.avatarUrl ? (
                     <img
                       src={user.avatarUrl}
@@ -221,7 +252,7 @@ const Navbar = () => {
                   </div>
                 </div>
                 <span className="welcome-text">
-                  Xin chào, <strong>{user.fullName}</strong>
+                  Xin chào, <strong className={user?.isCvPro ? 'vip-text' : ''}>{user.fullName}</strong>
                 </span>
               </div>
 

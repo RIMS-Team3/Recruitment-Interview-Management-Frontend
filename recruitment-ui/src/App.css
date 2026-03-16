@@ -33,6 +33,7 @@
   top: 0;
   z-index: 1000;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Thêm bóng mờ cho đẹp */
+  transition: all 0.3s ease;
 }
 
 .nav-content {
@@ -214,4 +215,107 @@
 /* Toaster z-index */
 [data-sonner-toaster], .react-hot-toast {
   z-index: 99999 !important;
+}
+
+/* =========================================
+   STYLE CHO TÀI KHOẢN VIP (DARK THEME NHƯ TOPCV PRO)
+   ========================================= */
+
+/* Background Đen Nâu */
+.navbar-pro {
+  background-color: #211a12 !important;
+  border-bottom: 1px solid #332b21 !important;
+}
+
+/* Chữ Logo Main màu Trắng */
+.navbar-pro .logo-main-text {
+  color: #ffffff;
+}
+
+/* Chữ Pro màu Vàng */
+.logo-pro-text {
+  color: #f3c246;
+  font-weight: 800;
+  margin-left: 4px;
+  font-size: 18px;
+}
+
+/* Ô vuông Logo T đổi thành nền trắng chữ đen */
+.navbar-pro .navbar-logo-box {
+  background-color: #ffffff;
+  color: #211a12;
+}
+
+/* Text Menu màu trắng */
+.navbar-pro .nav-menu li {
+  color: #ffffff;
+}
+
+/* Hover đổi màu vàng thay vì xanh */
+.navbar-pro .nav-menu li:hover,
+.navbar-pro .nav-menu li.active {
+  color: #f3c246;
+}
+
+/* Huy hiệu IT LOCAK Pro trên menu */
+.navbar-pro .badge-vip-nav {
+  background-color: #f3c246 !important;
+  color: #211a12 !important;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800 !important;
+  cursor: default !important;
+  box-shadow: none;
+  animation: none;
+}
+
+/* Box Số dư - Nền xuyên thấu mờ mờ */
+.navbar-pro .nav-balance-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(243, 194, 70, 0.3);
+}
+
+.navbar-pro .balance-label {
+  color: #d1d5db;
+}
+
+.navbar-pro .balance-value {
+  color: #f3c246;
+}
+
+/* Khung User Profile */
+.navbar-pro .user-profile-nav.vip-theme {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 4px 8px; /* Cắt bớt padding cho gọn */
+}
+
+.navbar-pro .welcome-text {
+  color: #ffffff;
+}
+
+.navbar-pro .welcome-text .vip-text {
+  color: #ffffff;
+  background: none;
+  -webkit-text-fill-color: #ffffff;
+  text-shadow: none;
+}
+
+/* Avatar Border Vàng */
+.navbar-pro .nav-avatar {
+  border: 2px solid #f3c246;
+  background: #332b21;
+}
+
+/* Nút Logout */
+.navbar-pro .navbar-btn-logout {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+}
+
+.navbar-pro .navbar-btn-logout:hover {
+  background: #e11d48;
 }
