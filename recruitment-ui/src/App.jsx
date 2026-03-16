@@ -99,6 +99,9 @@ const Navbar = () => {
     return null;
   }
 
+   const idCompanyEmployer = localStorage.getItem("IdCompany");
+
+
   return (
     <nav className="main-navbar">
       <div className="nav-content">
@@ -162,13 +165,8 @@ const Navbar = () => {
               Hồ sơ & CV
             </li>
           )}
-
-          <li className={location.pathname === "/it-blog" ? "active" : ""} onClick={() => navigate("/it-blog")}>
-            Cẩm nang
-          </li>
-          
-          <li className={location.pathname === "/joblist" ? "active" : ""} onClick={() => navigate("/joblist")}>
-            Việc làm
+          <li className={location.pathname === `/scheduled/${idCompanyEmployer}` ? "active" : ""} onClick={() => navigate(`/scheduled/${idCompanyEmployer}`)}>
+            Lịch Phỏng Vấn 
           </li>
           <li className={location.pathname === "/game" ? "active" : ""} onClick={() => navigate("/game")}>
             Game
@@ -278,7 +276,8 @@ function App() {
             <Route path="/naptien" element={<DepositPage />} />
             <Route path="/applied-jobs" element={<ListAppliedJobs />} />
             <Route path="/create-company" element={<CreateCompany />} />
-             <Route path="/game" element={<TaiXiuGame />} />
+            <Route path="/game" element={<TaiXiuGame />} />
+            <Route path="/scheduled/:companyId" element={<InterviewPage />} />
             {/* Protected Routes */}
             <Route path="/manage-cv" element={<ProtectedRoute requiredRole={2}><CVs /></ProtectedRoute>} />
             <Route path="/employer/applications" element={<ProtectedRoute requiredRole={3}><ApplicationList /></ProtectedRoute>} />
@@ -296,6 +295,7 @@ function App() {
             <Route path="/employer/orders" element={<ProtectedRoute requiredRole={3}><OrderHistory /></ProtectedRoute>} />
             <Route path="/candidate/orders" element={<ProtectedRoute requiredRole={2}><OrderHistory /></ProtectedRoute>} />
             <Route path="/order-details/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
+           {/* <Route path="/scheduled/:id" element={<ProtectedRoute> <InterviewPage/> </ProtectedRoute>} /> */}
           </Routes>
         </main>
       </div>
