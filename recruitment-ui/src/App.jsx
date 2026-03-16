@@ -171,7 +171,7 @@ const Navbar = () => {
                 onClick={() => navigate("/naptien")}
                 style={{ color: "#10b981", fontWeight: "bold" }}
               >
-                Nạp Tiền
+                Gift Code
               </li>
 
               <li className="nav-balance-item">

@@ -23,7 +23,7 @@ export default function SelectRole() {
 
       const res = await axios.post(
         `${API}/auth/select-role`,
-        { role },
+        { role  , Id: localStorage.getItem("userId") }, // Gửi thêm userId nếu cần
         {
           headers: {
             Authorization: `Bearer ${token}`,
