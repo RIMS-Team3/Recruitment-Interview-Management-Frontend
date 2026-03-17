@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 
@@ -9,23 +9,21 @@ import Template3 from "./Templates/Template3";
 import "./CreateCV.css";
 
 const CVViewer = () => {
-
   const { cvId } = useParams();
 
   const [cvData, setCvData] = useState(null);
   const [templateId, setTemplateId] = useState("tpl-1");
   const [loading, setLoading] = useState(true);
 
-  const cvRef = React.useRef(null);
+  const cvRef = useRef(null);
 
   useEffect(() => {
-
     const fetchCV = async () => {
-
       try {
-
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        
         const response = await fetch(
-          `https://localhost:7272/api/cvs/${cvId}`
+          `${baseUrl}/cvs/${cvId}`
         );
 
         if (!response.ok) {
@@ -39,27 +37,20 @@ const CVViewer = () => {
         if (data.templateId) {
           setTemplateId(data.templateId);
         }
-
       } catch (error) {
-
-        console.error(error);
-
+        console.error("Lỗi khi tải chi tiết CV:", error);
       } finally {
-
         setLoading(false);
-
       }
-
     };
 
-    fetchCV();
-
+    if (cvId) {
+      fetchCV();
+    }
   }, [cvId]);
 
   const handleExportPDF = () => {
-
     const element = cvRef.current;
-
     if (!element) return;
 
     const fileName = cvData?.fullName
@@ -78,77 +69,76 @@ const CVViewer = () => {
   };
 
   const renderTemplate = () => {
-
     if (loading) {
       return <div className="loading-spinner">Đang tải CV...</div>;
     }
 
     if (!cvData) {
-      return <div>Không tìm thấy CV</div>;
+      return (
+        <div style={{ textAlign: "center", marginTop: "50px" }}>
+          <p>Không tìm thấy nội dung CV (ID: {cvId})</p>
+        </div>
+      );
     }
 
+    // CHỈNH SỬA: Khóa hàm thay đổi để chặn React cập nhật dữ liệu
+    const templateProps = { 
+      cvData, 
+      readOnly: true,
+      handleTextChange: () => {}, 
+      handleArrayChange: () => {} 
+    };
+
     switch (templateId) {
-
       case "tpl-2":
-        return <Template2 cvData={cvData} readOnly={true} />;
-
+        return <Template2 {...templateProps} />;
       case "tpl-3":
-        return <Template3 cvData={cvData} readOnly={true} />;
-
+        return <Template3 {...templateProps} />;
       default:
-        return <Template1 cvData={cvData} readOnly={true} />;
+        return <Template1 {...templateProps} />;
     }
   };
 
   return (
-
     <div className="create-cv-layout">
-
       <header className="workspace-header">
-
         <div className="header-container">
-
           <h2>CV ứng viên</h2>
-
-          <div style={{display:"flex",gap:"10px"}}>
-
-            <span style={{
-              color:"#ef4444",
-              fontWeight:"600"
-            }}>
-              🔒 Chỉ xem
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <span style={{ color: "#ef4444", fontWeight: "600" }}>
+              🔒 Chế độ xem
             </span>
-
             <button
               onClick={handleExportPDF}
+              className="btn-download-pdf"
               style={{
-                background:"#ef4444",
-                color:"white",
-                border:"none",
-                padding:"8px 18px",
-                borderRadius:"6px",
-                cursor:"pointer"
+                background: "#ef4444",
+                color: "white",
+                border: "none",
+                padding: "8px 18px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "600"
               }}
             >
               📄 Download PDF
             </button>
-
           </div>
-
         </div>
-
       </header>
 
       <main className="cv-workspace">
-
-        <div ref={cvRef}>
+        {/* CHỈNH SỬA: Chặn sự kiện phím và áp dụng class khóa triệt để */}
+        <div 
+          ref={cvRef} 
+          className="cv-viewer-mode"
+          onKeyDown={(e) => e.preventDefault()}
+          tabIndex="-1" 
+        >
           {renderTemplate()}
         </div>
-
       </main>
-
     </div>
-
   );
 };
 
