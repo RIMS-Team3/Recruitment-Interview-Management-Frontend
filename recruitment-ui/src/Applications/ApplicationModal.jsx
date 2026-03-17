@@ -29,9 +29,9 @@ const ApplicationModal = ({ show, handleClose, application }) => {
     application.CandidateEmail ||
     "Không có email";
 
-  const candidateAvatar = 
-    application.candidateAvatar || 
-    application.CandidateAvatar || 
+  const candidateAvatar =
+    application.candidateAvatar ||
+    application.CandidateAvatar ||
     null;
 
   const jobTitle =
@@ -86,7 +86,7 @@ const ApplicationModal = ({ show, handleClose, application }) => {
       if (!cvId) {
         toast.error("Ứng viên chưa tạo CV");
         return;
-      } 
+      }
 
       const url = `/cv-preview/${cvId}`;
       window.open(url, "_blank");
@@ -127,22 +127,21 @@ const ApplicationModal = ({ show, handleClose, application }) => {
             <div className="profile-card">
               {candidateAvatar ? (
                 <div className="avatar-wrapper">
-                   <img
+                  <img
                     src={candidateAvatar}
                     alt={candidateName}
                     className="avatar-img-modal"
                     onError={(e) => {
-                      // Fallback nếu ảnh lỗi
                       e.target.style.display = 'none';
-                      e.target.nextElementSibling.style.display = 'flex';
+                      e.target.nextElementSibling.classList.add('show-fallback');
                     }}
                   />
-                  <div className="avatar" style={{ display: 'none' }}>
+                  <div className="avatar-fallback">
                     {candidateName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                   </div>
                 </div>
               ) : (
-                <div className="avatar">
+                <div className="avatar-fallback">
                   {candidateName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                 </div>
               )}
@@ -183,7 +182,7 @@ const ApplicationModal = ({ show, handleClose, application }) => {
 
             {/* BUTTON */}
             <button className="btn-primary" onClick={handleViewCV}>
-              Xem CV
+              Xem chi tiết CV
             </button>
           </div>
         </div>

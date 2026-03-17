@@ -1,5 +1,5 @@
 /* ===================================================
-   MODAL OVERLAY (NỀN TỐI PHÍA SAU)
+   MODAL OVERLAY & BOX
    =================================================== */
 .modal-overlay {
   position: fixed;
@@ -7,36 +7,34 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(15, 23, 42, 0.65); /* Màu nền đậm hơn để nổi bật modal */
-  backdrop-filter: blur(6px); /* Làm mờ nền phía sau */
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  opacity: 0;
-  animation: fadeInOverlay 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* ===================================================
-   MODAL BOX (THÂN MODAL CHÍNH)
-   =================================================== */
 .modal-box.single {
   background-color: #ffffff;
   width: 90%;
-  max-width: 520px; /* Tăng độ rộng một chút để cân đối */
-  border-radius: 28px; /* Bo góc sâu và hiện đại hơn */
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); /* Bóng đổ mềm mại */
+  max-width: 480px;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transform: translateY(30px) scale(0.95);
-  animation: slideInModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  font-family: 'Inter', sans-serif; /* Sử dụng font chữ hiện đại */
+  animation: modalScaleUp 0.3s ease-out;
+}
+
+@keyframes modalScaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 /* ===================================================
-   HEADER (TIÊU ĐỀ & NÚT ĐÓNG)
+   HEADER
    =================================================== */
 .modal-header {
-  padding: 24px 32px;
+  padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,212 +43,194 @@
 
 .modal-header h3 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
   color: #1e293b;
-  letter-spacing: -0.5px;
 }
 
 .close-btn {
-  background: #f1f5f9;
+  background: #f8fafc;
   border: none;
   color: #64748b;
   cursor: pointer;
   padding: 8px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  border-radius: 10px;
+  transition: 0.2s;
 }
 
 .close-btn:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
-  transform: rotate(90deg);
+  background-color: #fee2e2;
+  color: #ef4444;
 }
 
 /* ===================================================
-   BODY (NỘI DUNG CHÍNH)
+   BODY & PROFILE CARD
    =================================================== */
 .modal-body {
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 28px; /* Khoảng cách đều giữa các mục */
+  gap: 20px;
 }
 
-/* ===================================================
-   PROFILE CARD (KHỐI CHỨA AVATAR & TÊN)
-   =================================================== */
 .profile-card {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
-  background-color: #f8fafc;
-  border-radius: 20px;
-  border: 1px solid #f1f5f9;
+  gap: 16px;
+  padding: 16px;
+  background-color: #f0fdf4; /* Nền xanh lá cực nhạt */
+  border-radius: 16px;
+  border: 1px solid #dcfce7;
 }
 
-/* Ảnh đại diện trong Modal (Cần thêm class này vào file JSX như mình đã hướng dẫn trước đó) */
-.avatar-img-modal {
-  width: 72px; /* To và nổi bật hơn */
-  height: 72px;
-  border-radius: 50%; /* Hình tròn */
+.avatar-img-modal, .avatar-fallback {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px; /* Bo góc vuông hiện đại giống Card ngoài List */
   object-fit: cover;
-  border: 4px solid #ffffff;
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
 }
 
-/* Avatar chữ cái dự phòng */
-.profile-card .avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+.avatar-fallback {
+  background: #00b14f; /* Màu xanh thương hiệu */
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .profile-info h4 {
-  margin: 0;
-  font-size: 20px;
+  margin: 0 0 4px 0;
+  font-size: 18px;
   font-weight: 700;
   color: #0f172a;
-  line-height: 1.2;
 }
 
 .profile-info .email {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 6px;
+  font-size: 13px;
   color: #64748b;
-  background: white;
-  padding: 4px 10px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  width: fit-content;
-}
-
-.profile-info .email svg {
-  color: #94a3b8;
 }
 
 /* ===================================================
-   INFO ITEM (VỊ TRÍ & NGÀY NỘP)
+   INFO ITEMS
    =================================================== */
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
-/* Label (Nhãn phía trên) */
 .info-label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 12px;
   text-transform: uppercase;
   font-weight: 700;
   color: #94a3b8;
-  letter-spacing: 1px;
 }
 
-.info-label svg {
-  color: #cbd5e1;
+.info-value-row, .info-value {
+  background-color: #f8fafc;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
 }
 
-/* Value Row (Dòng chứa Vị trí và Trạng thái) */
 .info-value-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f8fafc;
-  padding: 16px 20px;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
 }
 
-.job-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
+/* Job title màu xanh đồng bộ */
+.info-value-row .job-title {
+  color: #00b14f;
 }
 
-/* Status Badge (Huy hiệu trạng thái) */
+/* Status Badges */
 .status {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 99px; /* Bo tròn hoàn toàn */
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
 }
 
-.status-0 { background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7; } /* Chờ duyệt */
-.status-1 { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; } /* Chấp nhận */
-.status-2 { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; } /* Từ chối */
-
-/* Value Single (Ngày nộp) */
-.info-value {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  background-color: #f8fafc;
-  padding: 16px 20px;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
-}
+.status-0 { background: #fff8e1; color: #f57c00; }
+.status-1 { background: #e8f5e9; color: #00b14f; }
+.status-2 { background: #ffebee; color: #d32f2f; }
 
 /* ===================================================
-   BUTTONS (NÚT XEM CV)
+   BUTTON XEM CV
+   =================================================== */
+/* ===================================================
+   BUTTONS (NÚT XEM CV) - CHUYỂN SANG XANH LÁ
    =================================================== */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  /* Màu nền xanh lá thương hiệu */
+  background: #00b14f; 
   color: white;
   border: none;
   padding: 16px;
-  border-radius: 16px;
+  border-radius: 12px; /* Bo góc hiện đại khớp với giao diện */
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  
+  /* Đổ bóng nhẹ để tạo độ nổi khối */
+  box-shadow: 0 4px 12px rgba(0, 177, 79, 0.2);
+  
+  /* Đảm bảo nội dung căn giữa */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+  /* Màu xanh đậm hơn một chút khi di chuột vào */
+  background: #009643; 
+  box-shadow: 0 6px 18px rgba(0, 177, 79, 0.3);
   transform: translateY(-2px);
 }
 
 .btn-primary:active {
-  transform: translateY(1px);
+  transform: translateY(0);
+}
+.btn-primary {
+  /* Thêm !important để chắc chắn ghi đè mọi style mặc định */
+  background-color: #00b14f !important; 
+  background: #00b14f !important;
+  color: white !important;
+  border: none !important;
+  
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 177, 79, 0.2);
 }
 
-/* ===================================================
-   ANIMATIONS (HIỆU ỨNG CHUYỂN ĐỘNG)
-   =================================================== */
-@keyframes fadeInOverlay {
-  to { opacity: 1; }
-}
-
-@keyframes slideInModal {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.btn-primary:hover {
+  background-color: #009643 !important;
+  background: #009643 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 177, 79, 0.3);
 }

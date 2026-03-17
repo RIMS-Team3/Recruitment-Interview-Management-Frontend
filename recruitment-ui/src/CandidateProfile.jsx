@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { AuthContext } from './Auth/AuthContext'; // Đảm bảo đường dẫn này đúng với cấu trúc thư mục của bạn
 
 const CandidateProfile = () => {
     const [profile, setProfile] = useState({});
@@ -7,6 +8,9 @@ const CandidateProfile = () => {
     const [isUploading, setIsUploading] = useState(false);
     
     const fileInputRef = useRef(null);
+    
+    // Gọi AuthContext để cập nhật trạng thái VIP lên Navbar
+    const { user, setUser } = useContext(AuthContext); 
 
     const currentUserId = localStorage.getItem("userId"); 
     const apiUrl = "https://localhost:7272/api/candidateprofiles";
@@ -17,7 +21,6 @@ const CandidateProfile = () => {
             <div style={{ textAlign: 'center', padding: '50px', marginTop: '50px' }}>
                 <h2 style={{ color: '#ff4d4f' }}>Bạn chưa đăng nhập!</h2>
                 <p style={{ fontSize: '16px', color: '#555' }}>Vui lòng đăng nhập để xem và chỉnh sửa hồ sơ cá nhân của bạn.</p>
-                {/* Bạn có thể dùng useNavigate hoặc thẻ <a> để dẫn họ về trang /login ở đây */}
             </div>
         );
     }
@@ -33,8 +36,20 @@ const CandidateProfile = () => {
                     formattedData.dateOfBirth = formattedData.dateOfBirth.split('T')[0];
                 }
                 setFormData(formattedData);
+
+                // ==========================================
+                // ĐỒNG BỘ TRẠNG THÁI VIP LÊN NAVBAR
+                // ==========================================
+                if (user && user.isCvPro !== data.isCvPro) {
+                    setUser(prev => {
+                        const updatedUser = { ...prev, isCvPro: data.isCvPro };
+                        localStorage.setItem('user', JSON.stringify(updatedUser)); // Lưu đè local
+                        return updatedUser;
+                    });
+                }
             })
             .catch(err => console.error("Lỗi tải dữ liệu:", err));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUserId]);
 
     // Xử lý Upload Ảnh
@@ -109,7 +124,17 @@ const CandidateProfile = () => {
                     <img src={profile.avatarUrl || defaultAvatar} alt="Avatar" style={{...styles.avatarImage, opacity: isUploading ? 0.5 : 1}} />
                     <button onClick={() => fileInputRef.current.click()} style={styles.cameraButton} disabled={isUploading}>📷</button>
                 </div>
-                <p style={{ fontSize: '13px', color: '#888' }}>{isUploading ? "Đang xử lý..." : "Đổi ảnh đại diện"}</p>
+                
+                {/* HIỂN THỊ HUY HIỆU VIP (NẾU CÓ) */}
+                {profile.isCvPro && (
+                    <div style={styles.vipBadge}>
+                        👑 Thành viên Pro
+                    </div>
+                )}
+
+                <p style={{ fontSize: '13px', color: '#888', marginTop: profile.isCvPro ? '8px' : '10px' }}>
+                    {isUploading ? "Đang xử lý..." : "Đổi ảnh đại diện"}
+                </p>
                 <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleAvatarChange} />
             </div>
 
@@ -125,7 +150,9 @@ const CandidateProfile = () => {
                     <p><strong>Lương mong muốn:</strong> {profile.desiredSalary ? `${profile.desiredSalary} triệu` : 'Chưa có'}</p>
                     <div style={{ gridColumn: 'span 2' }}>
                         <p><strong>Giới thiệu bản thân:</strong></p>
-                        <p style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>{profile.summary || 'Chưa cập nhật'}</p>
+                        <p style={{ backgroundColor: '#fff', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', minHeight: '60px' }}>
+                            {profile.summary || 'Chưa cập nhật'}
+                        </p>
                     </div>
                     <div style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '15px' }}>
                         <button onClick={() => setIsEditing(true)} style={styles.editButton}>Chỉnh sửa hồ sơ</button>
@@ -161,6 +188,7 @@ const styles = {
     avatarWrapper: { position: 'relative', width: '130px', height: '130px' },
     avatarImage: { width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #00b14f' },
     cameraButton: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '50%', padding: '8px', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+    vipBadge: { marginTop: '12px', padding: '6px 14px', background: 'linear-gradient(90deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)', color: '#5c4000', borderRadius: '20px', fontWeight: 'bold', fontSize: '13px', boxShadow: '0 2px 6px rgba(191, 149, 63, 0.4)', cursor: 'default' },
     infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', backgroundColor: '#f9f9f9', padding: '25px', borderRadius: '8px' },
     input: { width: '100%', padding: '10px', marginTop: '5px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' },
     editButton: { padding: '10px 25px', backgroundColor: '#00b14f', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },

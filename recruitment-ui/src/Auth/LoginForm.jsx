@@ -144,7 +144,7 @@ const LoginForm = () => {
         localStorage.setItem("fullName", data.fullName);
         localStorage.setItem("role", data.role);
         localStorage.setItem("userId", data.userId);
-
+        localStorage.setItem("IdCompany", data.idCompany);
         if (data.candidateId) {
           localStorage.setItem("candidateId", data.candidateId);
         }
@@ -191,7 +191,7 @@ const LoginForm = () => {
         localStorage.setItem("fullName", loginData.fullName);
         localStorage.setItem("role", loginData.role);
         localStorage.setItem("userId", loginData.userId);
-
+        localStorage.setItem("IdCompany", loginData.idCompany);
         setUser({
           id: loginData.userId,
           candidateId: loginData.candidateId,
