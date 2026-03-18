@@ -48,6 +48,10 @@ import UpgradeCvPro from "./CVs/UpgradeCvPro";
 import DepositPage from "./Coin/DepositPage";
 import TaiXiuGame from "./Game/TaiXiuGame";
 
+
+
+import ResetPassword from "./Password/ResetPassword";
+import ChangePassword from "./Password/ChangePassword";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -267,13 +271,9 @@ const Navbar = () => {
               </>
             )}
 
-            <li
-              className={location.pathname === "/it-blog" ? "active" : ""}
-              onClick={() => navigate("/it-blog")}
-              style={{ cursor: "pointer" }}
-            >
-              Cẩm nang
-            </li>
+           <li className={location.pathname === "/change-password" ? "active" : ""} onClick={() => navigate("/change-password")}>
+                 Đổi mật khẩu
+               </li>
           </ul>
 
           <div className="nav-auth">
@@ -364,6 +364,8 @@ function App() {
             <Route path="/create-company" element={<CreateCompany />} />
             <Route path="/game" element={<TaiXiuGame />} />
             
+            <Route path="/reset-password" element={< ResetPassword />} />
+             <Route path="/change-password" element={< ChangePassword />} />
             {/* role employer */}
             <Route path="/scheduled/:companyId" element={<InterviewPage />} />
 
