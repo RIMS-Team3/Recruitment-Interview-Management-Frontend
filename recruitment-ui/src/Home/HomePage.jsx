@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import './HomePage.css';
 
-// --- PHẦN THÊM MỚI: Mảng chứa logo các công ty lớn ---
+// --- Mảng chứa logo các công ty lớn ---
 const COMPANY_LOGOS = [
     "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg", // Google
     "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",     // Microsoft
@@ -19,7 +19,7 @@ const COMPANY_LOGOS = [
     "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Pornhub-logo.svg/3840px-Pornhub-logo.svg.png"
 ];
 
-// --- PHẦN THÊM MỚI: Hàm lấy logo cố định theo ID của Job ---
+// --- Hàm lấy logo cố định theo ID của Job ---
 const getLogoForJob = (jobId) => {
     if (!jobId) return COMPANY_LOGOS[0];
     let hash = 0;
@@ -74,11 +74,10 @@ const HomePage = () => {
   const [banners, setBanners] = useState([]);
   
   // --- STATE QUẢN LÝ QUẢNG CÁO ---
-  const [popupAds, setPopupAds] = useState([]);       // Quảng cáo giữa màn hình
+  const [popupAds, setPopupAds] = useState([]);       
   const [showPopup, setShowPopup] = useState(false);  
-  
-  const [leftAds, setLeftAds] = useState([]);         // Cột quảng cáo bên Trái
-  const [rightAds, setRightAds] = useState([]);       // Cột quảng cáo bên Phải
+  const [leftAds, setLeftAds] = useState([]);         
+  const [rightAds, setRightAds] = useState([]);       
 
   // LẤY ROLE CỦA USER HIỆN TẠI
   const userRole = localStorage.getItem("role");
@@ -110,26 +109,20 @@ const HomePage = () => {
           const adsData = await adsRes.json();
           const validAds = adsData || [];
           
-          // 1. Lọc ra danh sách quảng cáo dành riêng cho Popup (Lấy tối đa 4 cái)
           const popupAdList = validAds.filter(ad => ad.isPopup);
           setPopupAds(popupAdList.slice(0, 4));
           
           if (popupAdList.length > 0) {
-            // Kiểm tra xem session đã lưu cờ 'hasSeenPopup' chưa
             const hasSeenPopup = sessionStorage.getItem("hasSeenPopup");
-            
-            // Nếu chưa có (nghĩa là mới vào web) thì mới hiện
             if (!hasSeenPopup) {
               setShowPopup(true);
-              // Lưu lại cờ để lần sau quay lại không hiện nữa
               sessionStorage.setItem("hasSeenPopup", "true"); 
             }
           }
 
-          // 2. Lọc ra danh sách quảng cáo dành cho 2 bên đảo (Những cái KHÔNG phải Popup)
           const floatingAdList = validAds.filter(ad => !ad.isPopup);
-          setLeftAds(floatingAdList.filter((_, i) => i % 2 === 0)); // Các ảnh chẵn sang trái
-          setRightAds(floatingAdList.filter((_, i) => i % 2 !== 0)); // Các ảnh lẻ sang phải
+          setLeftAds(floatingAdList.filter((_, i) => i % 2 === 0)); 
+          setRightAds(floatingAdList.filter((_, i) => i % 2 !== 0)); 
         }
 
       } catch (error) {
@@ -141,7 +134,6 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  // Logic tự động chuyển Slide Banner
   useEffect(() => {
     if (banners.length <= 1) return;
     const currentDuration = (banners[currentBanner]?.duration || 5) * 1000;
@@ -151,19 +143,16 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, [banners, currentBanner]);
 
-  // Các hàm tiện ích
   const nextBanner = () => setCurrentBanner((prev) => (prev + 1) % banners.length);
   const prevBanner = () => setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length);
   const handleBannerClick = () => { if (userRole === "1") navigate("/admin/banners"); };
   const formatSalary = (min, max) => `$${min.toLocaleString()} - $${max.toLocaleString()}`;
 
-  // Tắt từng quảng cáo bên trái
   const handleCloseLeftAd = (id, e) => {
     e.preventDefault();
     setLeftAds(prev => prev.filter(ad => ad.id !== id));
   };
 
-  // Tắt từng quảng cáo bên phải
   const handleCloseRightAd = (id, e) => {
     e.preventDefault();
     setRightAds(prev => prev.filter(ad => ad.id !== id));
@@ -249,9 +238,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* =========================================
-          LOẠI 1: QUẢNG CÁO POPUP (GIỮA MÀN HÌNH - 1 NÚT X)
-      ========================================= */}
       {showPopup && popupAds.length > 0 && (
         <div className="popup-ad-overlay" onClick={() => setShowPopup(false)}>
           <div className={`popup-ad-content grid-${popupAds.length}`} onClick={(e) => e.stopPropagation()} >
@@ -269,10 +255,6 @@ const HomePage = () => {
           </div>
         </div>
       )}
-
-      {/* =========================================
-          LOẠI 2: QUẢNG CÁO NỔI 2 CỘT (TẮT TỪNG CÁI)
-      ========================================= */}
       
       {/* CỘT TRÁI */}
       {leftAds.length > 0 && (

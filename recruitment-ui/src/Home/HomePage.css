@@ -141,33 +141,21 @@ body {
   z-index: 1;
 }
 
-/* Dải màu LED rực rỡ xoay phía sau */
 .popup-ad-link::before {
   content: '';
   position: absolute;
   top: -50%; left: -50%;
   width: 200%; height: 200%;
   background: conic-gradient(
-    transparent, 
-    transparent, 
-    transparent, 
-    #ff00ff, /* Hồng Neon */
-    #00ffff, /* Xanh Cyan */
-    #00ff00, /* Xanh lá */
-    #ff0000, /* Đỏ */
-    #ffff00  /* Vàng */
+    transparent, transparent, transparent, 
+    #ff00ff, #00ffff, #00ff00, #ff0000, #ffff00 
   );
-  animation: rotateLed 1s linear infinite; /* Tốc độ quay của Popup ở giữa màn hình */
+  animation: rotateLed 1s linear infinite; 
   z-index: -1;
 }
 
-.popup-ad-link:hover { 
-  transform: scale(1.02); 
-}
-
-.popup-ad-link:hover::before {
-  animation-duration: 0.4s; /* Xoay tít mù khi hover */
-}
+.popup-ad-link:hover { transform: scale(1.02); }
+.popup-ad-link:hover::before { animation-duration: 0.4s; }
 
 .popup-ad-img {
   position: relative;
@@ -238,32 +226,19 @@ body {
   top: -50%; left: -50%;
   width: 200%; height: 200%;
   background: conic-gradient(
-    transparent, 
-    transparent, 
-    transparent, 
-    #ff00ff, 
-    #00ffff, 
-    #00ff00, 
-    #ff0000, 
-    #ffff00
+    transparent, transparent, transparent, 
+    #ff00ff, #00ffff, #00ff00, #ff0000, #ffff00
   );
-  animation: rotateLed 1s linear infinite; /* Tốc độ quay của Quảng cáo ở 2 bên Sidebar */
+  animation: rotateLed 1s linear infinite; 
   z-index: -1;
 }
 
-/* Các ảnh xoay ngược chiều nhau */
-.floating-ad-item:nth-child(even) a::before {
-  animation-direction: reverse;
-}
+.floating-ad-item:nth-child(even) a::before { animation-direction: reverse; }
 
 .floating-ad-img {
   position: relative;
   z-index: 2;
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 10px;
-  background-color: #000;
+  width: 100%; height: auto; display: block; border-radius: 10px; background-color: #000;
 }
 
 .close-single-ad-btn {
@@ -295,13 +270,24 @@ body {
 }
 
 /* =========================================
-   Stats Section 
+   Stats Section (ĐÃ SỬA LỖI TRÀN DÒNG)
 ========================================= */
 .stats-section {
-  display: flex; justify-content: space-around; margin: 60px auto;
-  padding: 40px 20px; background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm);
+  display: flex; 
+  flex-wrap: wrap; /* Thêm để tự động rớt dòng */
+  gap: 20px;       /* Khoảng cách giữa các box */
+  justify-content: space-around; 
+  margin: 60px auto;
+  padding: 40px 20px; 
+  background: white; 
+  border-radius: var(--radius); 
+  box-shadow: var(--shadow-sm);
 }
-.stat-card { display: flex; align-items: center; gap: 15px; flex: 1; justify-content: center; }
+.stat-card { 
+  display: flex; align-items: center; gap: 15px; flex: 1; 
+  min-width: 250px; /* Thêm độ rộng tối thiểu để thẻ rớt dòng khi bị ép hẹp */
+  justify-content: center; 
+}
 .stat-icon {
   color: var(--primary); width: 42px; height: 42px; background: var(--primary-light);
   padding: 10px; border-radius: 12px;
@@ -404,7 +390,7 @@ body {
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 
 /* =========================================
-   MEDIA QUERIES (Phần thêm mới để đẹp trên Mobile/Tablet)
+   MEDIA QUERIES (Sửa để đẹp trên Mobile/Tablet)
 ========================================= */
 @media (max-width: 1024px) {
   /* Tablet hiển thị 2 cột */
@@ -424,7 +410,25 @@ body {
     grid-template-columns: 1fr;
   }
   
-  /* Các phần khác nếu cần chỉnh sửa cho Mobile */
+  /* --- FIX THỐNG KÊ ỨNG VIÊN TRÊN ĐIỆN THOẠI --- */
+  .stats-section {
+    flex-direction: column; 
+    padding: 30px 20px;
+    gap: 0;
+  }
+  
+  .stat-card {
+    width: 100%;
+    justify-content: flex-start; 
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f5f9; 
+  }
+
+  .stat-card:last-child {
+    border-bottom: none; 
+  }
+  /* ------------------------------------------- */
+
   .footer-grid {
     grid-template-columns: 1fr;
   }
