@@ -319,9 +319,12 @@ body {
 .modern-section-title .title-line { display: block; width: 50px; height: 4px; background: var(--primary); margin-top: 8px; border-radius: 10px; }
 .link-all { text-decoration: none; color: var(--primary); display: flex; align-items: center; gap: 5px; font-weight: 600; cursor: pointer; }
 
+/* ĐÃ SỬA LẠI ĐỂ HIỂN THỊ CỐ ĐỊNH 4 CỘT TRÊN PC */
 .job-grid-modern {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px; width: 100%;
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px; 
+  width: 100%;
 }
 
 .job-card-modern {
@@ -399,3 +402,40 @@ body {
 .footer-links li:hover { color: var(--primary); }
 .footer-bottom-bar { border-top: 1px solid rgba(255,255,255,0.05); padding: 25px 0; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+/* =========================================
+   MEDIA QUERIES (Phần thêm mới để đẹp trên Mobile/Tablet)
+========================================= */
+@media (max-width: 1024px) {
+  /* Tablet hiển thị 2 cột */
+  .job-grid-modern {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Các phần khác nếu cần chỉnh sửa cho Tablet */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Điện thoại hiển thị 1 cột */
+  .job-grid-modern {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Các phần khác nếu cần chỉnh sửa cho Mobile */
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .discovery-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .btn-discovery-premium {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

@@ -7,6 +7,29 @@ import {
 } from 'lucide-react';
 import './HomePage.css';
 
+// --- PHẦN THÊM MỚI: Mảng chứa logo các công ty lớn ---
+const COMPANY_LOGOS = [
+    "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg", // Google
+    "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",     // Microsoft
+    "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",        // Amazon
+    "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",   // Apple
+    "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg",  // Netflix
+    "https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png",          // Tesla
+    "https://d3e6ckxkrs5ntg.cloudfront.net/artists/images/8636356/original/resize:248x186/crop:x0y29w245h183/hash:1755578318/avt-viet69.jpeg?1755578318",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Pornhub-logo.svg/3840px-Pornhub-logo.svg.png"
+];
+
+// --- PHẦN THÊM MỚI: Hàm lấy logo cố định theo ID của Job ---
+const getLogoForJob = (jobId) => {
+    if (!jobId) return COMPANY_LOGOS[0];
+    let hash = 0;
+    for (let i = 0; i < jobId.length; i++) {
+        hash = jobId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % COMPANY_LOGOS.length;
+    return COMPANY_LOGOS[index];
+};
+
 // --- COMPONENT: HIỆU ỨNG CHẠY SỐ ---
 const CountUpNumber = ({ end, duration = 2000 }) => {
   const [count, setCount] = useState(0);
@@ -40,9 +63,8 @@ const CountUpNumber = ({ end, duration = 2000 }) => {
   return <h4 ref={elementRef}>{formatNumber(count)}+</h4>;
 };
 
-
- const  mytoken = localStorage.getItem("accessToken");
- console.log("Token của bạn là gì:", mytoken);
+const mytoken = localStorage.getItem("accessToken");
+console.log("Token của bạn là gì:", mytoken);
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -330,7 +352,11 @@ const HomePage = () => {
           </div>
         ) : (
           <div className="job-grid-modern">
-            {jobs.slice(0, 9).map(job => (
+            {/* LẤY ĐÚNG 8 ITEM (2 HÀNG x 4 CỘT) */}
+            {jobs.slice(0, 8).map(job => {
+              const jobLogo = getLogoForJob(String(job.idJobPost));
+              
+              return (
               <div
                 key={job.idJobPost}
                 className={`job-card-modern ${job.salaryMax >= 3000 ? 'hot-border' : ''}`}
@@ -339,7 +365,9 @@ const HomePage = () => {
               >
                 {job.salaryMax >= 3000 && <span className="hot-tag"><Zap size={12} fill="currentColor"/> HOT</span>}
                 <div className="card-top">
-                  <div className="company-logo-modern">{job.title.charAt(0)}</div>
+                  <div className="company-logo-modern">
+                    <img src={jobLogo} alt="company logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', borderRadius: '12px' }} />
+                  </div>
                   <div className="title-area">
                     <h4 className="job-title-text" title={job.title}>{job.title}</h4>
                     <p className="company-text">Công ty đối tác ITLoCak</p>
@@ -358,7 +386,7 @@ const HomePage = () => {
                   <span className="posted-time">Hạn: {new Date(job.expireAt).toLocaleDateString('vi-VN')}</span>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
 
