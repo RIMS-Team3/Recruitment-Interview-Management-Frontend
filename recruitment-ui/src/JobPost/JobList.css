@@ -98,6 +98,9 @@
     gap: 30px;
 }
 
+/* =========================================
+   SIDEBAR LỌC (DESKTOP)
+========================================= */
 .job-list-sidebar {
     width: 250px;
     background: white;
@@ -108,6 +111,18 @@
     height: fit-content;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+/* Các thẻ chỉ dùng cho Mobile mặc định ẩn đi trên Desktop */
+.mobile-filter-toggle-btn {
+    display: none;
+}
+.mobile-filter-overlay {
+    display: none;
+}
+.close-filter-btn {
+    display: none;
 }
 
 .filter-header {
@@ -117,9 +132,15 @@
     color: var(--dark-green);
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between; /* Để nút X về bên phải nếu có */
     border-bottom: 1px solid #eef2f3;
     padding-bottom: 12px;
+}
+
+.filter-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .filter-icon { color: #f97316; }
@@ -418,20 +439,15 @@
     border: 2px solid white;
 }
 
-@media (max-width: 1024px) {
-    .job-list-main-content { flex-direction: column; }
-    .job-list-sidebar { width: 100%; position: static; }
-}
-
 .floating-user-add-btn {
     position: fixed !important;
-    bottom: 110px !important; /* Cao hơn nút trái tim */
+    bottom: 110px !important;
     right: 30px !important;
-    width: 55px !important;  /* Thu nhỏ lại một chút cho thanh thoát */
+    width: 55px !important; 
     height: 55px !important;
     background-color: white !important;
     border: 2px solid #00b14f !important;
-    border-radius: 50% !important; /* Ép nó phải tròn */
+    border-radius: 50% !important; 
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -448,8 +464,139 @@
     box-shadow: 0 6px 15px rgba(0,177,79,0.2) !important;
 }
 
-/* Chỉnh icon bên trong nhỏ lại cho cân đối */
 .floating-user-add-btn svg {
     width: 28px !important;
     height: 28px !important;
+}
+
+
+/* =========================================
+   MEDIA QUERIES - GIAO DIỆN MOBILE & TABLET
+========================================= */
+@media (max-width: 1024px) {
+    .job-list-main-content { 
+        flex-direction: column; 
+    }
+
+    /* --- Nút bấm hiển thị bộ lọc --- */
+    .mobile-filter-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        color: var(--dark-green);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 5px; 
+    }
+
+    /* --- Màn hình tối --- */
+    .mobile-filter-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+        backdrop-filter: blur(2px);
+    }
+
+    /* --- Giao diện Sidebar chuyển thành Drawer trượt --- */
+    .job-list-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%; 
+        width: 85%;
+        max-width: 320px;
+        height: 100vh;
+        z-index: 9999;
+        margin: 0;
+        border-radius: 0;
+        overflow-y: auto; 
+        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    }
+
+    .job-list-sidebar.open {
+        left: 0; 
+    }
+
+    .close-filter-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        color: #475569;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+}
+
+/* =========================================
+   FIX THANH TÌM KIẾM NẰM TRÊN 1 DÒNG (MOBILE)
+========================================= */
+@media (max-width: 768px) {
+    .sticky-header {
+        padding: 12px 0; /* Thu gọn padding một chút cho tiết kiệm khoảng trống */
+    }
+    
+    .search-container {
+        flex-direction: row;     /* Ép cứng luôn nằm trên 1 dòng */
+        flex-wrap: nowrap;       /* Không cho phép rớt dòng */
+        gap: 6px;                /* Khoảng cách giữa các ô thật nhỏ */
+        width: 98%;
+    }
+
+    .search-box, .location-box {
+        height: 40px;            /* Chiều cao thu nhỏ lại */
+        padding: 0 6px;
+    }
+
+    .search-box {
+        flex: 1.8;               /* Ô search chiếm nhiều diện tích nhất */
+    }
+
+    .location-box {
+        flex: 1.2;               /* Ô location chiếm ít hơn */
+    }
+
+    .search-box input, .location-box select {
+        font-size: 12px;         /* Chữ nhỏ lại để hiển thị được nhiều */
+        padding: 0 4px;
+        width: 100%;
+    }
+
+    /* Ẩn bớt text placeholder dài nếu tràn màn hình */
+    .search-box input {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    
+    .search-box input::placeholder {
+        font-size: 11px;         /* Placeholder càng nhỏ càng gọn */
+    }
+
+    /* Thu nhỏ Icon 🔍 và 📍 */
+    .icon {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-find {
+        height: 40px;
+        padding: 0 12px;
+        font-size: 13px;
+        flex-shrink: 0;          /* KHÔNG CHO PHÉP NÚT BỊ ÉP NHỎ LẠI MẤT CHỮ */
+        white-space: nowrap;     /* Không rớt dòng chữ "Tìm kiếm" */
+    }
 }

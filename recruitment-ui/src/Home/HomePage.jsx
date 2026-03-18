@@ -7,6 +7,29 @@ import {
 } from 'lucide-react';
 import './HomePage.css';
 
+// --- Mảng chứa logo các công ty lớn ---
+const COMPANY_LOGOS = [
+    "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg", // Google
+    "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",     // Microsoft
+    "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",        // Amazon
+    "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",   // Apple
+    "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg",  // Netflix
+    "https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png",          // Tesla
+    "https://d3e6ckxkrs5ntg.cloudfront.net/artists/images/8636356/original/resize:248x186/crop:x0y29w245h183/hash:1755578318/avt-viet69.jpeg?1755578318",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Pornhub-logo.svg/3840px-Pornhub-logo.svg.png"
+];
+
+// --- Hàm lấy logo cố định theo ID của Job ---
+const getLogoForJob = (jobId) => {
+    if (!jobId) return COMPANY_LOGOS[0];
+    let hash = 0;
+    for (let i = 0; i < jobId.length; i++) {
+        hash = jobId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % COMPANY_LOGOS.length;
+    return COMPANY_LOGOS[index];
+};
+
 // --- COMPONENT: HIỆU ỨNG CHẠY SỐ ---
 const CountUpNumber = ({ end, duration = 2000 }) => {
   const [count, setCount] = useState(0);
@@ -40,9 +63,8 @@ const CountUpNumber = ({ end, duration = 2000 }) => {
   return <h4 ref={elementRef}>{formatNumber(count)}+</h4>;
 };
 
-
- const  mytoken = localStorage.getItem("accessToken");
- console.log("Token của bạn là gì:", mytoken);
+const mytoken = localStorage.getItem("accessToken");
+console.log("Token của bạn là gì:", mytoken);
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -52,11 +74,10 @@ const HomePage = () => {
   const [banners, setBanners] = useState([]);
   
   // --- STATE QUẢN LÝ QUẢNG CÁO ---
-  const [popupAds, setPopupAds] = useState([]);       // Quảng cáo giữa màn hình
+  const [popupAds, setPopupAds] = useState([]);       
   const [showPopup, setShowPopup] = useState(false);  
-  
-  const [leftAds, setLeftAds] = useState([]);         // Cột quảng cáo bên Trái
-  const [rightAds, setRightAds] = useState([]);       // Cột quảng cáo bên Phải
+  const [leftAds, setLeftAds] = useState([]);         
+  const [rightAds, setRightAds] = useState([]);       
 
   // LẤY ROLE CỦA USER HIỆN TẠI
   const userRole = localStorage.getItem("role");
@@ -88,26 +109,20 @@ const HomePage = () => {
           const adsData = await adsRes.json();
           const validAds = adsData || [];
           
-          // 1. Lọc ra danh sách quảng cáo dành riêng cho Popup (Lấy tối đa 4 cái)
           const popupAdList = validAds.filter(ad => ad.isPopup);
           setPopupAds(popupAdList.slice(0, 4));
           
           if (popupAdList.length > 0) {
-            // Kiểm tra xem session đã lưu cờ 'hasSeenPopup' chưa
             const hasSeenPopup = sessionStorage.getItem("hasSeenPopup");
-            
-            // Nếu chưa có (nghĩa là mới vào web) thì mới hiện
             if (!hasSeenPopup) {
               setShowPopup(true);
-              // Lưu lại cờ để lần sau quay lại không hiện nữa
               sessionStorage.setItem("hasSeenPopup", "true"); 
             }
           }
 
-          // 2. Lọc ra danh sách quảng cáo dành cho 2 bên đảo (Những cái KHÔNG phải Popup)
           const floatingAdList = validAds.filter(ad => !ad.isPopup);
-          setLeftAds(floatingAdList.filter((_, i) => i % 2 === 0)); // Các ảnh chẵn sang trái
-          setRightAds(floatingAdList.filter((_, i) => i % 2 !== 0)); // Các ảnh lẻ sang phải
+          setLeftAds(floatingAdList.filter((_, i) => i % 2 === 0)); 
+          setRightAds(floatingAdList.filter((_, i) => i % 2 !== 0)); 
         }
 
       } catch (error) {
@@ -119,7 +134,6 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  // Logic tự động chuyển Slide Banner
   useEffect(() => {
     if (banners.length <= 1) return;
     const currentDuration = (banners[currentBanner]?.duration || 5) * 1000;
@@ -129,19 +143,16 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, [banners, currentBanner]);
 
-  // Các hàm tiện ích
   const nextBanner = () => setCurrentBanner((prev) => (prev + 1) % banners.length);
   const prevBanner = () => setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length);
   const handleBannerClick = () => { if (userRole === "1") navigate("/admin/banners"); };
   const formatSalary = (min, max) => `$${min.toLocaleString()} - $${max.toLocaleString()}`;
 
-  // Tắt từng quảng cáo bên trái
   const handleCloseLeftAd = (id, e) => {
     e.preventDefault();
     setLeftAds(prev => prev.filter(ad => ad.id !== id));
   };
 
-  // Tắt từng quảng cáo bên phải
   const handleCloseRightAd = (id, e) => {
     e.preventDefault();
     setRightAds(prev => prev.filter(ad => ad.id !== id));
@@ -227,9 +238,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* =========================================
-          LOẠI 1: QUẢNG CÁO POPUP (GIỮA MÀN HÌNH - 1 NÚT X)
-      ========================================= */}
       {showPopup && popupAds.length > 0 && (
         <div className="popup-ad-overlay" onClick={() => setShowPopup(false)}>
           <div className={`popup-ad-content grid-${popupAds.length}`} onClick={(e) => e.stopPropagation()} >
@@ -247,10 +255,6 @@ const HomePage = () => {
           </div>
         </div>
       )}
-
-      {/* =========================================
-          LOẠI 2: QUẢNG CÁO NỔI 2 CỘT (TẮT TỪNG CÁI)
-      ========================================= */}
       
       {/* CỘT TRÁI */}
       {leftAds.length > 0 && (
@@ -330,7 +334,11 @@ const HomePage = () => {
           </div>
         ) : (
           <div className="job-grid-modern">
-            {jobs.slice(0, 9).map(job => (
+            {/* LẤY ĐÚNG 8 ITEM (2 HÀNG x 4 CỘT) */}
+            {jobs.slice(0, 8).map(job => {
+              const jobLogo = getLogoForJob(String(job.idJobPost));
+              
+              return (
               <div
                 key={job.idJobPost}
                 className={`job-card-modern ${job.salaryMax >= 3000 ? 'hot-border' : ''}`}
@@ -339,7 +347,9 @@ const HomePage = () => {
               >
                 {job.salaryMax >= 3000 && <span className="hot-tag"><Zap size={12} fill="currentColor"/> HOT</span>}
                 <div className="card-top">
-                  <div className="company-logo-modern">{job.title.charAt(0)}</div>
+                  <div className="company-logo-modern">
+                    <img src={jobLogo} alt="company logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px', borderRadius: '12px' }} />
+                  </div>
                   <div className="title-area">
                     <h4 className="job-title-text" title={job.title}>{job.title}</h4>
                     <p className="company-text">Công ty đối tác ITLoCak</p>
@@ -358,7 +368,7 @@ const HomePage = () => {
                   <span className="posted-time">Hạn: {new Date(job.expireAt).toLocaleDateString('vi-VN')}</span>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
 

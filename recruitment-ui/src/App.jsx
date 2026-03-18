@@ -54,6 +54,14 @@ const Navbar = () => {
   const { user, setUser } = useContext(AuthContext);
   const [balance, setBalance] = useState(0);
 
+  // --- STATE QUẢN LÝ MENU MOBILE ---
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Đóng menu mobile tự động khi chuyển trang
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   // 1. LOGIC FETCH SỐ DƯ VÀ CHECK VIP TỰ ĐỘNG MỌI LÚC MỌI NƠI
   useEffect(() => {
     let isMounted = true;
@@ -102,7 +110,7 @@ const Navbar = () => {
       isMounted = false;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, user?.id]); // Chạy lại mỗi khi chuyển trang hoặc user vừa load xong
+  }, [location.pathname, user?.id]);
 
   const handleProfileClick = () => {
     const role = localStorage.getItem("role");
@@ -129,8 +137,6 @@ const Navbar = () => {
     return null;
   }
 
-  const idCompanyEmployer = localStorage.getItem("IdCompany");
-
   return (
     <nav className={`main-navbar ${user?.isCvPro ? 'navbar-pro' : ''}`}>
       <div className="nav-content">
@@ -140,158 +146,174 @@ const Navbar = () => {
           {user?.isCvPro && <span className="logo-pro-text">Pro</span>}
         </Link>
 
-        <ul className="nav-menu">
-          {/* MENU DÀNH CHO ADMIN */}
-          {user && String(user.role) === "1" && (
-            <>
-              <li className={location.pathname === "/admin/dashboard" ? "active" : ""} onClick={() => navigate("/admin/dashboard")}>
-                Quản trị hệ thống
-              </li>
-              <li className={location.pathname === "/admin/advertisements" ? "active" : ""} onClick={() => navigate("/admin/advertisements")}>
-                Quảng Cáo
-              </li>
-              <li className={location.pathname === "/admin/service-packages" ? "active" : ""} onClick={() => navigate("/admin/service-packages")}>
-                Gói Dịch Vụ
-              </li>
-            </>
-          )}
+        {/* NÚT TOGGLE MENU DÀNH CHO MOBILE */}
+        <div 
+          className="mobile-menu-toggle" 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <span className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></span>
+          <span className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></span>
+          <span className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></span>
+        </div>
 
-          {/* MENU DÀNH CHO NHÀ TUYỂN DỤNG */}
-          {user && String(user.role) === "3" && (
-            <>
-              <li className={location.pathname === "/employer/buy-services" ? "active" : ""} onClick={() => navigate("/employer/buy-services")}>
-                Mua Dịch Vụ
-              </li>
-              <li className={location.pathname === "/employer/orders" ? "active" : ""} onClick={() => navigate("/employer/orders")}>
-                Lịch sử giao dịch
-              </li>
-              <li className={location.pathname === "/employer/manage-jobs" ? "active" : ""} onClick={() => navigate("/employer/manage-jobs")}>
-                Đăng tin
-              </li>
-               <li className={location.pathname === `/scheduled/${idCompanyEmployer}` ? "active" : ""} onClick={() => navigate(`/scheduled/${idCompanyEmployer}`)}>
-                   Lịch Phỏng Vấn 
+        {/* OVERLAY NỀN ĐEN KHI MỞ MENU MOBILE */}
+        {isMobileMenuOpen && (
+          <div className="mobile-overlay" onClick={() => setIsMobileMenuOpen(false)}></div>
+        )}
+
+        {/* KHUNG BỌC MENU VÀ AUTH ĐỂ TRƯỢT TRÊN MOBILE */}
+        <div className={`nav-right-panel ${isMobileMenuOpen ? 'open' : ''}`}>
+          <ul className="nav-menu">
+            {/* MENU DÀNH CHO ADMIN */}
+            {user && String(user.role) === "1" && (
+              <>
+                <li className={location.pathname === "/admin/dashboard" ? "active" : ""} onClick={() => navigate("/admin/dashboard")}>
+                  Quản trị hệ thống
+                </li>
+                <li className={location.pathname === "/admin/advertisements" ? "active" : ""} onClick={() => navigate("/admin/advertisements")}>
+                  Quảng Cáo
+                </li>
+                <li className={location.pathname === "/admin/service-packages" ? "active" : ""} onClick={() => navigate("/admin/service-packages")}>
+                  Gói Dịch Vụ
+                </li>
+              </>
+            )}
+
+            {/* MENU DÀNH CHO NHÀ TUYỂN DỤNG */}
+            {user && String(user.role) === "3" && (
+              <>
+                <li className={location.pathname === "/employer/buy-services" ? "active" : ""} onClick={() => navigate("/employer/buy-services")}>
+                  Mua Dịch Vụ
+                </li>
+                <li className={location.pathname === "/employer/orders" ? "active" : ""} onClick={() => navigate("/employer/orders")}>
+                  Lịch sử giao dịch
+                </li>
+                <li className={location.pathname === "/employer/manage-jobs" ? "active" : ""} onClick={() => navigate("/employer/manage-jobs")}>
+                  Đăng tin
+                </li>
+              </>
+            )}
+
+            {/* MENU DÀNH CHO ỨNG VIÊN */}
+            {user && String(user.role) === "2" && (
+             <>
+               {!user?.isCvPro ? (
+                 <li
+                   onClick={() => navigate('/upgrade-cv-pro')}
+                   className="btn-upgrade-nav"
+                 >
+                   ⭐ Nâng cấp ngay
+                 </li>
+               ) : (
+                 <li className="badge-vip-nav" title="Bạn đang sở hữu gói CV Pro">
+                   IT LOCAK Pro
+                 </li>
+               )}
+               <li className={location.pathname === "/candidate/orders" ? "active" : ""} onClick={() => navigate("/candidate/orders")}>
+                 Lịch sử giao dịch
                </li>
-            </>
-          )}
+             </>
+            )}
 
-          {/* MENU DÀNH CHO ỨNG VIÊN */}
-          {user && String(user.role) === "2" && (
-           <>
-              <li className={location.pathname === "/candidate/orders" ? "active" : ""} onClick={() => navigate("/candidate/orders")}>
-                Lịch sử giao dịch
-              </li>
-              
-              {/* LINK LỊCH PHỎNG VẤN DÀNH CHO CANDIDATE */}
-              <li 
-                className={location.pathname.startsWith("/interview-schedule") ? "active" : ""} 
-                onClick={() => {
-                  const token = user.id; // Bạn có thể thay đổi token này tùy thuộc vào logic của backend
-                  navigate(`/interview-schedule/${token}`);
-                }}
+            {user && String(user.role) !== "1" && (
+              <li
+                className={["/manage-cv", "/employer/applications", "/admin/cvs"].includes(location.pathname) ? "active" : ""}
+                onClick={handleProfileClick}
               >
-                Lịch Phỏng Vấn
+                Hồ sơ & CV
               </li>
+            )}
 
-              {!user?.isCvPro ? (
-                <li 
-                  onClick={() => navigate('/upgrade-cv-pro')}
-                  className="btn-upgrade-nav"
-                >
-                  ⭐ Nâng cấp ngay
-                </li>
-              ) : (
-                <li className="badge-vip-nav" title="Bạn đang sở hữu gói CV Pro">
-                  IT LOCAK Pro
-                </li>
-              )}
-              <li className={location.pathname === "/candidate/orders" ? "active" : ""} onClick={() => navigate("/candidate/orders")}>
-                Lịch sử giao dịch
-              </li>
-            </>
-          )}
-
-          {user && String(user.role) !== "1" && (
-            <li 
-              className={["/manage-cv", "/employer/applications", "/admin/cvs"].includes(location.pathname) ? "active" : ""}
-              onClick={handleProfileClick} 
+            <li
+              className={location.pathname === "/joblist" ? "active" : ""}
+              onClick={() => navigate("/joblist")}
+              style={{ cursor: "pointer" }}
             >
-              Hồ sơ & CV
+              Việc làm
             </li>
-          )}       
-          <li className={location.pathname === "/game" ? "active" : ""} onClick={() => navigate("/game")}>
-            Game
-          </li>
-          {/* PHẦN NẠP TIỀN & SỐ DƯ */}
-          {user && (
-            <>
-              <li 
-                className={location.pathname === "/naptien" ? "active" : ""} 
-                onClick={() => navigate("/naptien")}
-                style={{ color: user?.isCvPro ? "#f3c246" : "#10b981", fontWeight: "bold" }}
-              >
-                Gift Code
-              </li>
 
-              <li className="nav-balance-item">
-                <span className="balance-label">Số Dư: </span>
-                <span className="balance-value">{formatCurrency(balance)}</span>
-              </li>
-            </>
-          )}
-        </ul>
-
-        <div className="nav-auth">
-          {user ? (
-            <>
-              <div
-                className={`user-profile-nav ${user?.isCvPro ? 'vip-theme' : 'blue-theme'}`}
-                onClick={() => {
-                  if (user.role === 2) navigate("/candidate-profile"); 
-                  else if (user.role === 3) navigate("/employer-profile"); 
-                }}
-              >
-                <div className={`nav-avatar ${user?.isCvPro ? 'vip-avatar' : ''}`}>
-                  {user.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt="avatar"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
-                    />
-                  ) : null}
-                  <div
-                    className="avatar-fallback"
-                    style={{ display: user.avatarUrl ? "none" : "flex" }}
-                  >
-                    {user.fullName?.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-                <span className="welcome-text">
-                  Xin chào, <strong className={user?.isCvPro ? 'vip-text' : ''}>{user.fullName}</strong>
-                </span>
-              </div>
-
-              <button
-                className="navbar-btn-logout"
-                onClick={() => {
-                  localStorage.clear();
-                  setUser(null);
-                  navigate("/");
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="navbar-btn-login" onClick={() => navigate("/login")}>
-                Đăng nhập
-              </button>
+            <li className={location.pathname === "/game" ? "active" : ""} onClick={() => navigate("/game")}>
+              Game
+            </li>
             
-            </>
-          )}
+            {/* PHẦN NẠP TIỀN & SỐ DƯ */}
+            {user && (
+              <>
+                <li
+                  className={location.pathname === "/naptien" ? "active" : ""}
+                  onClick={() => navigate("/naptien")}
+                  style={{ color: user?.isCvPro ? "#f3c246" : "#10b981", fontWeight: "bold" }}
+                >
+                  Gift Code
+                </li>
+                <li className="nav-balance-item">
+                  <span className="balance-label">Số Dư: </span>
+                  <span className="balance-value">{formatCurrency(balance)}</span>
+                </li>
+              </>
+            )}
+
+            <li
+              className={location.pathname === "/it-blog" ? "active" : ""}
+              onClick={() => navigate("/it-blog")}
+              style={{ cursor: "pointer" }}
+            >
+              Cẩm nang
+            </li>
+          </ul>
+
+          <div className="nav-auth">
+            {user ? (
+              <>
+                <div
+                  className={`user-profile-nav ${user?.isCvPro ? 'vip-theme' : 'blue-theme'}`}
+                  onClick={() => {
+                    if (user.role === 2) navigate("/candidate-profile");
+                    else if (user.role === 3) navigate("/employer-profile");
+                  }}
+                >
+                  <div className={`nav-avatar ${user?.isCvPro ? 'vip-avatar' : ''}`}>
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt="avatar"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="avatar-fallback"
+                      style={{ display: user.avatarUrl ? "none" : "flex" }}
+                    >
+                      {user.fullName?.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <span className="welcome-text">
+                    Xin chào, <strong className={user?.isCvPro ? 'vip-text' : ''}>{user.fullName}</strong>
+                  </span>
+                </div>
+
+                <button
+                  className="navbar-btn-logout"
+                  onClick={() => {
+                    localStorage.clear();
+                    setUser(null);
+                    navigate("/");
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="navbar-btn-login" onClick={() => navigate("/login")}>
+                  Đăng nhập
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </nav>
@@ -350,7 +372,7 @@ function App() {
             <Route path="/employer/orders" element={<ProtectedRoute requiredRole={3}><OrderHistory /></ProtectedRoute>} />
             <Route path="/candidate/orders" element={<ProtectedRoute requiredRole={2}><OrderHistory /></ProtectedRoute>} />
             <Route path="/order-details/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
-  
+ 
           </Routes>
         </main>
       </div>

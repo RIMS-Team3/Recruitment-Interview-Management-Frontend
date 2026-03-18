@@ -5,11 +5,11 @@ import { DEV_BYPASS_LOGIN_TO_SAVE, DEV_CANDIDATE_ID } from '../Services/candidat
 import { AuthContext } from '../Auth/AuthContext'; 
 import './JobList.css';
 
-// --- PHẦN THÊM MỚI: Mảng chứa logo các công ty lớn ---
+// --- Mảng chứa logo các công ty lớn ---
 const COMPANY_LOGOS = [
-    // "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg", // Google
-    // "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",     // Microsoft
-    // "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",        // Amazon
+    "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg", // Google
+    "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",     // Microsoft
+    "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",        // Amazon
     "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",   // Apple
     "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg",  // Netflix
     "https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png",          // Tesla
@@ -17,7 +17,7 @@ const COMPANY_LOGOS = [
     "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Pornhub-logo.svg/3840px-Pornhub-logo.svg.png"
 ];
 
-// --- PHẦN THÊM MỚI: Hàm lấy logo cố định theo ID của Job ---
+// --- Hàm lấy logo cố định theo ID của Job ---
 const getLogoForJob = (jobId) => {
     if (!jobId) return COMPANY_LOGOS[0];
     let hash = 0;
@@ -46,6 +46,9 @@ const JobList = () => {
     const [loading, setLoading] = useState(true);
     const [savingMap, setSavingMap] = useState({});
     const [savedJobIds, setSavedJobIds] = useState(new Set());
+
+    // --- STATE CHO BỘ LỌC MOBILE ---
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
     const [dynamicFilters, setDynamicFilters] = useState({
         locations: [],
@@ -211,9 +214,23 @@ const JobList = () => {
             </header>
 
             <div className="job-list-main-content">
-                <aside className="job-list-sidebar">
+                
+                {/* --- NÚT BẬT TẮT BỘ LỌC CHỈ HIỆN TRÊN MOBILE --- */}
+                <div className="mobile-filter-toggle-btn" onClick={() => setIsMobileFilterOpen(true)}>
+                    <span className="filter-icon">⚡</span> Hiển thị Lọc nâng cao
+                </div>
+
+                {/* --- OVERLAY MÀN HÌNH TỐI TRÊN MOBILE --- */}
+                {isMobileFilterOpen && (
+                    <div className="mobile-filter-overlay" onClick={() => setIsMobileFilterOpen(false)}></div>
+                )}
+
+                {/* --- SIDEBAR BỘ LỌC NÂNG CAO --- */}
+                <aside className={`job-list-sidebar ${isMobileFilterOpen ? 'open' : ''}`}>
                     <div className="filter-header">
-                        <span className="filter-icon">⚡</span> Lọc nâng cao
+                        <div className="filter-title"><span className="filter-icon">⚡</span> Lọc nâng cao</div>
+                        {/* Nút đóng bộ lọc trên mobile */}
+                        <button className="close-filter-btn" onClick={() => setIsMobileFilterOpen(false)}>✕</button>
                     </div>
 
                     <div className="filter-group">
@@ -262,7 +279,6 @@ const JobList = () => {
                         const jobId = String(job.idJobPost || job.jobId || job.id);
                         const isSaved = savedJobIds.has(jobId);
                         
-                        // --- PHẦN THÊM MỚI: Lấy logo tương ứng cho job này ---
                         const jobLogo = getLogoForJob(jobId);
 
                         return (
@@ -272,7 +288,6 @@ const JobList = () => {
                                 onClick={() => navigate(`/jobpostdetail/${jobId}`)}
                             >
                                 <div className="logo-box">
-                                    {/* --- PHẦN THÊM MỚI: Truyền biến jobLogo vào thẻ img --- */}
                                     <img src={jobLogo} alt="company logo" />
                                 </div>
                                 <div className="job-info">
