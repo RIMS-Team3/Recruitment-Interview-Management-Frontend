@@ -48,8 +48,6 @@ import UpgradeCvPro from "./CVs/UpgradeCvPro";
 import DepositPage from "./Coin/DepositPage";
 import TaiXiuGame from "./Game/TaiXiuGame";
 
-const idCompanyEmployer = localStorage.getItem("IdCompany");
-
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -193,9 +191,19 @@ const Navbar = () => {
                 <li className={location.pathname === "/employer/manage-jobs" ? "active" : ""} onClick={() => navigate("/employer/manage-jobs")}>
                   Đăng tin
                 </li>
-                 <li className={location.pathname === `/scheduled/${idCompanyEmployer}` ? "active" : ""} onClick={() => navigate(`/scheduled/${idCompanyEmployer}`)}>
+                 <li 
+                   className={location.pathname.startsWith("/scheduled") ? "active" : ""} 
+                   onClick={() => {
+                     const currentCompanyId = localStorage.getItem("IdCompany");
+                     if (currentCompanyId && currentCompanyId !== "null") {
+                       navigate(`/scheduled/${currentCompanyId}`);
+                     } else {
+                       console.warn("Chưa có ID công ty");
+                     }
+                   }}
+                 >
                    Quản lý lịch Phỏng Vấn 
-                   </li>
+                 </li>
               </>
             )}
         
