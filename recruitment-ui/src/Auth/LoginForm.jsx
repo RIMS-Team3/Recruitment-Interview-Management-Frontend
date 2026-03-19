@@ -295,13 +295,14 @@ const LoginForm = () => {
           <div className="input-group">
             <div className="label-row">
               <label>Mật khẩu</label>
-              {isLogin && <a href="#forgot" className="link-sm">Quên mật khẩu?</a>}
+              {isLogin && <a href="/reset-password" className="link-sm">Quên mật khẩu?</a>}
             </div>
             <div className="input-wrapper">
-              <Lock className="input-icon-left" size={18} />
+            <Lock className="input-icon-left" size={18} /> 
               <input
-                type={showPassword ? "text" : "password"}
+   type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
+               
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
