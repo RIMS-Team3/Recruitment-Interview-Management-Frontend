@@ -48,10 +48,9 @@ import UpgradeCvPro from "./CVs/UpgradeCvPro";
 import DepositPage from "./Coin/DepositPage";
 import TaiXiuGame from "./Game/TaiXiuGame";
 
-
-
 import ResetPassword from "./Password/ResetPassword";
 import ChangePassword from "./Password/ChangePassword";
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,11 +142,14 @@ const Navbar = () => {
 
   return (
     <nav className={`main-navbar ${user?.isCvPro ? 'navbar-pro' : ''}`}>
-      <div className="nav-content">
-        <Link to="/" className="logo-text">
-          <div className="navbar-logo-box">T</div>
-          <span className="logo-main-text">IT LOCAK</span>
-          {user?.isCvPro && <span className="logo-pro-text">Pro</span>}
+      {/* THÊM INLINE STYLE ÉP KHUNG NAV-CONTENT CĂN GIỮA TRỤC DỌC VÀ GIÃN RA 2 BÊN */}
+      <div className="nav-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '15px' }}>
+        
+        {/* ÉP LOGO CĂN ĐỀU TRÊN DƯỚI (ALIGN-ITEMS: CENTER) VÀ NẰM SÁT TRÁI */}
+        <Link to="/" className="logo-text" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', margin: 0 }}>
+          <div className="navbar-logo-box" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0 }}>T</div>
+          <span className="logo-main-text" style={{ display: 'flex', alignItems: 'center', margin: 0, lineHeight: 1 }}>IT LOCAK</span>
+          {user?.isCvPro && <span className="logo-pro-text" style={{ display: 'flex', alignItems: 'center', margin: 0, lineHeight: 1 }}>Pro</span>}
         </Link>
 
         {/* NÚT TOGGLE MENU DÀNH CHO MOBILE */}
