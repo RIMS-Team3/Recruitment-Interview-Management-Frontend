@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// BỎ prop { userId } đi
 const EmployerProfile = () => {
+    // TỰ LẤY ID TỪ LOCAL STORAGE TẠI ĐÂY
+    const userId = localStorage.getItem("userId");
+
     const [profile, setProfile] = useState({});
     const [formData, setFormData] = useState({});
     const [isEditing, setIsEditing] = useState(false);
@@ -8,22 +12,23 @@ const EmployerProfile = () => {
 
     const fileInputRef = useRef(null);
 
-    // ID thật của nhà tuyển dụng/công ty
-    const currentUserId = "A1234567-B123-C123-D123-E00000000003";
-    
-    // SỬA: Lấy Base URL từ biến môi trường của Vite
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiUrl = `${baseUrl}/employerprofiles`;
+    const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/employerprofiles`;
 
     useEffect(() => {
-        fetch(`${apiUrl}/user/${currentUserId}`)
+        // Chặn lỗi: Nếu chưa có userId thì không gọi API
+        if (!userId || userId === "undefined") {
+            console.warn("Chưa có userId, ngừng gọi API");
+            return;
+        }
+
+        fetch(`${apiUrl}/user/${userId}`)
             .then(res => res.json())
             .then(data => {
                 setProfile(data);
                 setFormData(data);
             })
             .catch(err => console.error("Lỗi tải dữ liệu công ty:", err));
-    }, [currentUserId, apiUrl]);
+    }, [userId, apiUrl]);
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
@@ -34,7 +39,6 @@ const EmployerProfile = () => {
 
         setIsUploading(true);
         
-        // SỬA: Đã đổi thành /avatar cho khớp 100% với API C# Backend
         fetch(`${apiUrl}/${profile.id}/avatar`, { 
             method: 'POST',
             body: formDataFile,
@@ -43,7 +47,6 @@ const EmployerProfile = () => {
             .then(data => {
                 if (data.avatarUrl) {
                     alert("Cập nhật Logo công ty thành công!");
-                    // Đồng bộ link ảnh mới cho cả 2 trạng thái
                     setProfile(prev => ({ ...prev, avatarUrl: data.avatarUrl }));
                     setFormData(prev => ({ ...prev, avatarUrl: data.avatarUrl }));
                 }
@@ -83,10 +86,8 @@ const EmployerProfile = () => {
         <div style={styles.container}>
             <h2 style={{ color: '#0044cc', textAlign: 'center', marginBottom: '30px' }}>Hồ sơ Doanh nghiệp</h2>
 
-            {/* KHU VỰC LOGO CÔNG TY */}
             <div style={styles.avatarSection}>
                 <div style={styles.avatarWrapper}>
-                    {/* Dùng biến avatarUrl chuẩn theo C# trả về */}
                     <img src={profile.avatarUrl || defaultLogo} alt="Company Logo" style={{ ...styles.avatarImage, borderRadius: '12px', opacity: isUploading ? 0.5 : 1 }} />
                     <button onClick={() => fileInputRef.current.click()} style={styles.cameraButton} disabled={isUploading}>📷</button>
                 </div>
@@ -94,7 +95,6 @@ const EmployerProfile = () => {
                 <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleAvatarChange} />
             </div>
 
-            {/* KHU VỰC THÔNG TIN */}
             {!isEditing ? (
                 <div style={styles.infoGrid}>
                     <p style={{ gridColumn: 'span 2', fontSize: '18px', color: '#0044cc' }}><strong>{profile.companyName || 'Tên công ty chưa cập nhật'}</strong></p>
