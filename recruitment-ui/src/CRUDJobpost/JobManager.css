@@ -194,6 +194,15 @@ font-size: 11px;
 font-weight: 500;
 }
 
+.jm-tag-experience {
+background-color: #eff6ff;
+color: #1d4ed8;
+font-weight: 600;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+}
+
 /* Footer thẻ (Lương & Ngày) */
 .jm-card-footer {
 border-top: 1px solid #f3f4f6;
