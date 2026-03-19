@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Mail, Lock, LogIn, Code2, Eye, EyeOff, UserPlus, User } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { toast } from 'react-hot-toast'; // Import thư viện thông báo
+import { toast } from 'react-hot-toast'; 
 import './LoginStyles.css';
 import { AuthContext } from "./AuthContext";
 
 const API = import.meta.env.VITE_API_BASE_URL;
+
 const LoginForm = () => {
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
@@ -16,7 +17,8 @@ const LoginForm = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  //THÊM: Nếu đã login rồi thì không cho vào /login nữa
+
+  // NẾU ĐÃ LOGIN RỒI THÌ KHÔNG CHO VÀO /login NỮA
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const role = Number(localStorage.getItem("role"));
@@ -30,8 +32,7 @@ const LoginForm = () => {
     }
   }, [navigate]);
 
-
-  // ================= GOOGLE LOGIN (ĐÃ SỬA THÊM ID CÔNG TY) =================
+  // ================= GOOGLE LOGIN =================
   async function handleCredentialResponse(response) {
     const toastId = toast.loading("Đang đăng nhập bằng Google...");
 
@@ -49,14 +50,12 @@ const LoginForm = () => {
         return;
       }
 
-      // --- Cần đưa toàn bộ phần lưu trữ vào ĐÂY (trước khi navigate) ---
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("email", data.email);
       localStorage.setItem("fullName", data.fullName);
       localStorage.setItem("role", data.role);
       localStorage.setItem("userId", data.userId);
       
-      // LƯU THÊM IDCOMPANY TỪ GOOGLE LOGIN
       if (data.idCompany) {
         localStorage.setItem("IdCompany", data.idCompany);
       }
@@ -76,7 +75,6 @@ const LoginForm = () => {
 
       toast.success("Đăng nhập Google thành công!", { id: toastId });
 
-      // Sau đó mới điều hướng
       if (data.role === 0) {
         navigate("/select-role");
       } else if (data.role === 1) {
@@ -95,8 +93,7 @@ const LoginForm = () => {
     if (!window.google) return;
 
     window.google.accounts.id.initialize({
-      client_id:
-        "319275534367-9rj78f047dfp9c5ig55fk25gbpmtvpah.apps.googleusercontent.com",
+      client_id: "319275534367-9rj78f047dfp9c5ig55fk25gbpmtvpah.apps.googleusercontent.com",
       callback: handleCredentialResponse,
     });
 
@@ -139,9 +136,21 @@ const LoginForm = () => {
       const text = await response.text();
       const data = text ? JSON.parse(text) : {};
 
+      // XỬ LÝ LỖI TỪ API TRẢ VỀ Ở ĐÂY
       if (!response.ok) {
-        toast.error(data.message || "Có lỗi xảy ra", { id: toastId });
-        setPassword("");
+        setPassword(""); // Xoá password đi để user nhập lại
+        
+        // 1. Trường hợp lỗi từ FluentValidation (trả về object errors)
+        if (data.errors) {
+          // Lấy tất cả các mảng lỗi gom thành 1 mảng phẳng (flat)
+          const errorMessages = Object.values(data.errors).flat();
+          // Hiển thị lỗi đầu tiên trong danh sách cho người dùng đỡ rối
+          toast.error(errorMessages[0], { id: toastId });
+          return;
+        }
+
+        // 2. Trường hợp lỗi do bạn tự define (ví dụ: message = "Email đã tồn tại")
+        toast.error(data.message || (isLogin ? "Tài khoản hoặc mật khẩu không chính xác" : "Có lỗi xảy ra khi đăng ký"), { id: toastId });
         return;
       }
 
@@ -172,7 +181,6 @@ const LoginForm = () => {
           role: data.role,
         });
 
-
         if (data.role === 0) {
           navigate("/select-role");
         } else {
@@ -181,7 +189,6 @@ const LoginForm = () => {
 
       } else {
         // REGISTER SUCCESS -> LOGIN LUÔN
-
         const loginRes = await fetch(`${API}/Auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -300,9 +307,8 @@ const LoginForm = () => {
             <div className="input-wrapper">
             <Lock className="input-icon-left" size={18} /> 
               <input
-   type={showPassword ? "text" : "password"}
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-               
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
