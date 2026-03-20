@@ -229,8 +229,8 @@ const CandidateProfile = () => {
 };
 
 const styles = {
-    // ĐÃ CHỈNH SỬA: Thay alignItems thành 'flex-start' và thêm paddingTop: '100px'
-    pageWrapper: { position: 'relative', height: '100vh', width: '100vw', background: 'radial-gradient(circle at center, #1b2735 0%, #090a0f 100%)', overflow: 'hidden', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '100px', boxSizing: 'border-box', fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif', margin: 0 },
+    // ĐÃ CHỈNH SỬA: Giảm paddingTop từ 100px xuống 20px để sát Navbar
+    pageWrapper: { position: 'relative', height: '100vh', width: '100vw', background: 'radial-gradient(circle at center, #1b2735 0%, #090a0f 100%)', overflow: 'hidden', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '20px', boxSizing: 'border-box', fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif', margin: 0 },
     
     container: { display: 'flex', zIndex: 10, width: '920px', maxWidth: '95%', height: '520px', backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderRadius: '24px', boxShadow: '0 30px 60px rgba(0, 0, 0, 0.5)', overflow: 'hidden' },
     
