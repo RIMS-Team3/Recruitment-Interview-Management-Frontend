@@ -51,6 +51,9 @@ import TaiXiuGame from "./Game/TaiXiuGame";
 import ResetPassword from "./Password/ResetPassword";
 import ChangePassword from "./Password/ChangePassword";
 
+import InterviewSlotDetail  from "./Interviews/InterviewSlotDetail";
+
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -389,7 +392,9 @@ function App() {
             <Route path="/reset-password" element={< ResetPassword />} />
              <Route path="/change-password" element={< ChangePassword />} />
             {/* role employer */}
+            
             <Route path="/scheduled/:companyId" element={<InterviewPage />} />
+            <Route path="/interviews/detail/:id" element={<InterviewSlotDetail  />} />
 
             {/* role candidate */}
             <Route path="/interview-schedule/:token" element={<InterviewSchedule />} />

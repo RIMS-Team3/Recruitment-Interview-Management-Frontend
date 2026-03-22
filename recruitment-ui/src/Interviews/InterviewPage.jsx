@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Thêm useNavigate
 import axios from 'axios';
 import { 
   Calendar, Clock, MapPin, Building2, 
@@ -11,6 +11,7 @@ import './InterviewPage.css';
 
 const InterviewPage = () => {
     const { companyId } = useParams();
+    const navigate = useNavigate(); // Khởi tạo navigate
     const today = new Date().toISOString().split('T')[0];
     
     // Lấy URL từ biến môi trường Vite
@@ -197,16 +198,20 @@ const InterviewPage = () => {
                                         </div>
 
                                         <div className="slot-actions">
-                                            {/* SỬA Ở ĐÂY: Tách nút xóa ra ngoài điều kiện !slot.isBooked */}
                                             {!slot.isBooked ? (
                                                 <button className="btn-icon edit" onClick={() => handleOpenEdit(slot)} title="Chỉnh sửa">
                                                     <Edit2 size={16} />
                                                 </button>
                                             ) : (
-                                                <button className="btn-view-candidate">Chi tiết ứng viên</button>
+                                                // CẬP NHẬT: Thêm sự kiện onClick để navigate
+                                                <button 
+                                                    className="btn-view-candidate"
+                                                    onClick={() => navigate(`/interviews/detail/${slot.idInterviewSlot}`)}
+                                                >
+                                                    Chi tiết ứng viên
+                                                </button>
                                             )}
                                             
-                                            {/* Nút Xóa luôn hiển thị */}
                                             <button className="btn-icon delete" onClick={() => {setSlotToDelete(slot.idInterviewSlot); setShowDeleteModal(true);}} title="Xóa">
                                                 <Trash2 size={16} />
                                             </button>
@@ -273,7 +278,6 @@ const InterviewPage = () => {
                     <div className="modal-confirm-modern">
                         <div className="warn-icon"><AlertTriangle size={32} /></div>
                         <h3>Xóa khung giờ này?</h3>
-                        {/* Cập nhật nội dung cảnh báo cho phù hợp */}
                         <p>Dữ liệu sẽ bị xóa vĩnh viễn. Nếu đã có ứng viên đặt lịch, lịch phỏng vấn của họ cũng sẽ bị hủy.</p>
                         <div className="modal-foot">
                             <button className="btn-text" onClick={() => setShowDeleteModal(false)}>Quay lại</button>
