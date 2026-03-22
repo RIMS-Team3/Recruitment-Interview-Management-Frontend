@@ -115,6 +115,24 @@
 .btn-submit { background: var(--employer-primary); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .btn-text { background: transparent; border: none; font-weight: 600; color: #64748b; cursor: pointer; }
 
+/* Các style bổ sung cho Modal Xóa */
+.modal-confirm-modern {
+  background: white; width: 100%; max-width: 400px; border-radius: 20px; overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.2);
+  padding: 32px 24px 0; text-align: center;
+}
+.warn-icon {
+  width: 64px; height: 64px; background: #fef2f2; color: var(--employer-danger);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.modal-confirm-modern h3 { margin: 0 0 12px; font-size: 20px; font-weight: 700; color: var(--employer-text); }
+.modal-confirm-modern p { color: #64748b; font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+.btn-danger-final {
+  background: var(--employer-danger); color: white; border: none;
+  padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .slot-item-row { grid-template-columns: 1fr; gap: 20px; }
