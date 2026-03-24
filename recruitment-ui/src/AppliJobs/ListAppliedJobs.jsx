@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Thêm thư viện thông báo sinh động
+import Swal from 'sweetalert2';
 import './ListAppliedJobs.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -11,23 +11,59 @@ const ListAppliedJobs = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedCandidateId = localStorage.getItem("candidateId");
+        const checkAndFetchData = async () => {
+            const userId = localStorage.getItem("userId");
+            const role = localStorage.getItem("role");
+            let storedCandidateId = localStorage.getItem("candidateId");
 
-        if (!storedCandidateId) {
-            // Thay alert bằng SweetAlert2 sinh động
-            Swal.fire({
-                title: 'Thông báo',
-                text: "Vui lòng đăng nhập với vai trò ứng viên để xem danh sách này!",
-                icon: 'warning',
-                confirmButtonColor: '#00b14f',
-                confirmButtonText: 'Đến trang đăng nhập'
-            }).then(() => {
-                navigate('/login');
-            });
-            return;
-        }
+            // 1. Kiểm tra xem người dùng đã đăng nhập và có phải ứng viên không (Role = 2)
+            if (!userId || String(role) !== "2") {
+                setLoading(false);
+                Swal.fire({
+                    title: 'Thông báo',
+                    text: "Vui lòng đăng nhập với vai trò ứng viên để xem danh sách này!",
+                    icon: 'warning',
+                    confirmButtonColor: '#00b14f',
+                    confirmButtonText: 'Đến trang đăng nhập'
+                }).then(() => {
+                    navigate('/login');
+                });
+                return;
+            }
 
-        fetchAppliedJobs(storedCandidateId);
+            // 2. NẾU CHƯA CÓ candidateId, tự động gọi API để lấy từ userId
+            if (!storedCandidateId || storedCandidateId === "undefined" || storedCandidateId === "null") {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/Application/candidate/${userId}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.candidateId) {
+                            storedCandidateId = data.candidateId;
+                            localStorage.setItem("candidateId", storedCandidateId); // Lưu lại để dùng sau này
+                        }
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi lấy candidateId:", error);
+                }
+            }
+
+            // 3. Nếu lấy xong vẫn không có candidateId (Lỗi dữ liệu phía server)
+            if (!storedCandidateId || storedCandidateId === "undefined" || storedCandidateId === "null") {
+                setLoading(false);
+                Swal.fire({
+                    title: 'Lỗi',
+                    text: "Không tìm thấy hồ sơ ứng viên của bạn trong hệ thống!",
+                    icon: 'error',
+                    confirmButtonColor: '#00b14f'
+                });
+                return;
+            }
+
+            // 4. Có candidateId rồi thì an tâm gọi API lấy danh sách
+            fetchAppliedJobs(storedCandidateId);
+        };
+
+        checkAndFetchData();
     }, [navigate]);
 
     const fetchAppliedJobs = async (candidateId) => {
@@ -48,9 +84,7 @@ const ListAppliedJobs = () => {
         }
     };
 
-    // 3. Hàm hủy ứng tuyển - ĐÃ CẬP NHẬT MỀM MẠI HƠN
     const handleUnapply = async (applicationId) => {
-        // Thay window.confirm bằng hộp thoại xác nhận cực đẹp
         const resultConfirm = await Swal.fire({
             title: 'Xác nhận hủy?',
             text: "Bạn có chắc chắn muốn rút hồ sơ khỏi công việc này không?",
@@ -60,7 +94,7 @@ const ListAppliedJobs = () => {
             cancelButtonColor: '#ef4444',
             confirmButtonText: 'Đồng ý, hủy ngay',
             cancelButtonText: 'Suy nghĩ lại',
-            reverseButtons: true, // Đưa nút hủy sang trái cho thuận tay
+            reverseButtons: true,
             background: '#ffffff',
             borderRadius: '20px'
         });
@@ -76,7 +110,6 @@ const ListAppliedJobs = () => {
             const result = await response.json();
 
             if (result.isSuccess) {
-                // Thông báo thành công tự động đóng sau 2 giây
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
@@ -85,7 +118,7 @@ const ListAppliedJobs = () => {
                     timer: 2000,
                     timerProgressBar: true
                 });
-                
+
                 setAppliedList(prevList => prevList.filter(item => item.applicationId !== applicationId));
             } else {
                 Swal.fire({
@@ -135,9 +168,9 @@ const ListAppliedJobs = () => {
                         <div className="empty-state-content">
                             <div className="empty-icon-circle">
                                 <svg viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="#00b14f" strokeWidth="1.5">
-                                    <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M13 2v7h7" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M12 18h.01M8 14h8" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M13 2v7h7" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M12 18h.01M8 14h8" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </div>
                             <h3>Chưa có lịch sử ứng tuyển</h3>
@@ -151,7 +184,7 @@ const ListAppliedJobs = () => {
                     <div className="job-grid">
                         {appliedList.map((item) => {
                             const status = getStatusDetails(item.status);
-                            const targetJobId = item.jobId || item.id || item.idJobPost;
+                            const targetJobId = item.jobId || item.id || item.idJobPost || item.idJobpost || item.jobPostId;
 
                             return (
                                 <div key={item.applicationId} className="job-item-card">
@@ -178,11 +211,11 @@ const ListAppliedJobs = () => {
                                                 e.stopPropagation();
                                                 handleUnapply(item.applicationId);
                                             }}
-                                            disabled={item.status === 2}
-                                            title={item.status === 2 ? 'Không thể hủy hồ sơ đã bị từ chối' : 'Hủy ứng tuyển'}
+                                            disabled={item.status !== 0}
+                                            title={item.status !== 0 ? 'Không thể hủy hồ sơ đã được xử lý' : 'Hủy ứng tuyển'}
                                         >
                                             <svg viewBox="0 0 24 24" width="18" fill="currentColor">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                                             </svg>
                                             <span>Hủy</span>
                                         </button>
@@ -200,7 +233,7 @@ const ListAppliedJobs = () => {
                 onClick={() => navigate(-1)}
             >
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
-                    <path d="M11 16L7 12M7 12L11 8M7 12H17M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#00b14f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M11 16L7 12M7 12L11 8M7 12H17M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#00b14f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             </button>
         </div>

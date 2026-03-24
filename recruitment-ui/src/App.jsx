@@ -360,7 +360,14 @@ function App() {
             <Route path="/it-blog" element={<ITBlog />} />
             <Route path="/upgrade-cv-pro" element={<UpgradeCvPro />} />
             <Route path="/naptien" element={<DepositPage />} />
-            <Route path="/applied-jobs" element={<ListAppliedJobs />} />
+            <Route
+              path="/applied-jobs"
+              element={
+                <ProtectedRoute requiredRole={2}>
+                  <ListAppliedJobs />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/create-company" element={<CreateCompany />} />
             <Route path="/game" element={<TaiXiuGame />} />
             
