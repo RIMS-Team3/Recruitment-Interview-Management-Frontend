@@ -1,0 +1,155 @@
+/* Tổng quan Card hiện đại */
+.modern-card {
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  background-color: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modern-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+}
+
+/* Card Lịch trình đặc biệt */
+.highlight-card {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+}
+
+/* Tiêu đề từng phần */
+.section-title {
+  font-weight: 700;
+  color: #2b3445;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+/* Avatar ứng viên */
+.avatar-placeholder {
+  width: 75px;
+  height: 75px;
+  background-color: #f1f5f9;
+  border: 3px solid #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Grid thông tin Job */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+/* Widget điểm số (Score Widgets) */
+.score-widget {
+  padding: 1.25rem 1rem;
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.score-widget:hover {
+  transform: scale(1.03);
+}
+
+.tech-bg {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+}
+
+.soft-bg {
+  background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+  border: 1px solid #f5d0fe;
+}
+
+.score-value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  color: #0f172a;
+}
+
+.score-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Border dashed cho phần chưa có đánh giá */
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 2px !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Soft Badges (Badge màu pastel) */
+.badge-soft-primary {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-soft-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-soft-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-soft-secondary {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+/* Hiệu ứng cho button */
+.btn-hover-effect {
+  transition: all 0.2s;
+}
+
+.btn-hover-effect:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(13, 110, 253, 0.2) !important;
+}
+
+/* Responsive tinh chỉnh */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
